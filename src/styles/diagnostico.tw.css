@@ -1,0 +1,354 @@
+/* Tailwind runtime */
+@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ========== BASE (tokens + preflight extra) ========== */
+@layer base {
+  :root {
+    /* Paleta / tokens */
+    --primary-color:#0f172a; --primary-light:#1e293b;
+    --accent-color:#3b82f6; --accent-hover:#2563eb;
+    --success-color:#10b981; --warning-color:#f59e0b; --error-color:#ef4444;
+
+    --text-primary:#0f172a; --text-secondary:#64748b; --text-muted:#94a3b8;
+    --bg-primary:#fff; --bg-secondary:#f8fafc; --bg-tertiary:#f1f5f9;
+    --border-color:#e2e8f0;
+
+    --shadow-sm:0 1px 2px 0 rgba(0,0,0,.05);
+    --shadow-md:0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -1px rgba(0,0,0,.06);
+    --shadow-lg:0 10px 15px -3px rgba(0,0,0,.1), 0 4px 6px -2px rgba(0,0,0,.05);
+    --shadow-xl:0 20px 25px -5px rgba(0,0,0,.1), 0 10px 10px -5px rgba(0,0,0,.04);
+
+    --gradient-accent: linear-gradient(135deg,#3b82f6 0%,#1d4ed8 100%);
+  }
+
+  * { @apply box-border; }
+  body {
+    @apply min-h-screen m-0 p-0;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(135deg,#f8fafc 0%, #e2e8f0 100%);
+    color: var(--text-primary);
+  }
+
+  /* Tipos de medios más suaves */
+  img, svg, video { @apply select-none; }
+
+  /* Bordes por defecto de Tailwind, atados a tu token */
+  * { @apply border-[var(--border-color)]; }
+}
+
+/* ========== COMPONENTS (UI reutilizable) ========== */
+@layer components {
+  /* Contenedor responsivo con ancho profesional mejorado */
+  .screen-wrap { @apply max-w-[1400px] mx-auto px-6 md:px-8 lg:px-10; }
+
+  /* Card principal con proporciones profesionales mejoradas */
+  .card {
+    @apply relative mx-auto my-8 rounded-2xl border p-8 backdrop-blur;
+    background: var(--bg-primary);
+    box-shadow: var(--shadow-lg); /* sombra más sutil */
+    /* Antes: overflow:hidden cortaba tooltips; ahora visible para que no se recorte el popup */
+    overflow: visible;
+    max-width: 750px; /* aumentado para mejor lectura */
+  }
+  .card::before {
+    content: "";
+    @apply absolute left-0 right-0 top-0 h-1 rounded-t-2xl;
+    background: var(--gradient-accent);
+  }
+
+  /* Botón/enlace de vuelta */
+  .back-link {
+    @apply inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium no-underline transition mb-6;
+    color: var(--accent-color);
+    background: var(--bg-secondary);
+  }
+  .back-link:hover {
+    background: var(--accent-color);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+  .back-link::before { content: "←"; font-size: 16px; }
+
+  /* Título */
+  .title { @apply m-0 mb-2 text-4xl font-bold leading-tight text-slate-900; }
+  .title .url { color: var(--accent-color); @apply font-semibold break-all; }
+
+  /* Ajuste: solo la URL en azul, el prefijo en color normal y tamaño reducido */
+  .diagnostico-title {
+    @apply m-0 mb-2 text-xl md:text-2xl font-bold leading-snug;
+    color: var(--text-primary);
+    background: none;
+    -webkit-background-clip: initial;
+    -webkit-text-fill-color: initial;
+  }
+  .diagnostico-title .url { @apply font-semibold break-all; color: var(--accent-color); }
+
+  /* Tooltip fijo para estrategias */
+  .strategy-tooltip { width: 420px; max-width:420px; }
+  @media (max-width:560px){ .strategy-tooltip{ width: 340px; max-width:340px; } }
+
+  /* Asegurar que padres no oculten el tooltip */
+  .diagnostico-btn-group, .card, .screen-wrap { overflow: visible !important; }
+
+  .date { @apply mb-6 text-sm font-medium text-slate-400; }
+
+  /* Mensaje de éxito/estado */
+  .success-msg {
+    @apply mb-6 inline-flex items-center gap-2 rounded-xl border px-5 py-3 text-sm font-medium;
+    color: var(--success-color);
+    background: linear-gradient(135deg,#ecfdf5 0%, #d1fae5 100%);
+    border-color: #a7f3d0;
+  }
+  .success-msg::before { content: "✓"; font-weight: 700; }
+
+  /* Grid de tarjetas principales - más responsive */
+  .diagnostico-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+    margin-top: 24px;
+    width: 100%;
+    max-width: 1400px; /* límite para evitar que se extienda demasiado */
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  /* Media queries para ajustar columnas específicas por pantalla */
+  @media (max-width: 640px) {
+    .diagnostico-grid {
+      grid-template-columns: 1fr;
+      gap: 16px;
+      margin-top: 20px;
+    }
+  }
+  
+  @media (min-width: 641px) and (max-width: 1023px) {
+    .diagnostico-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .diagnostico-grid {
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 24px;
+    }
+  }
+
+  /* Tarjetas individuales mejoradas para errores detectados */
+  .item {
+    @apply relative overflow-hidden rounded-xl border text-center transition-all duration-300;
+    background: var(--bg-primary);
+    box-shadow: var(--shadow-sm);
+    padding: 20px 16px;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  @media (min-width: 640px) {
+    .item {
+      padding: 20px 16px;
+      min-height: 200px;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .item {
+      padding: 24px 20px;
+      min-height: 220px;
+    }
+  }
+  .item::before {
+    content: "";
+    @apply absolute left-0 right-0 top-0 h-[3px];
+    background: var(--gradient-accent);
+    transform: scaleX(0);
+    transition: transform .3s ease;
+  }
+  .item:hover { 
+    @apply -translate-y-2; 
+    box-shadow: var(--shadow-xl); 
+    border-color: var(--accent-color); 
+  }
+  .item:hover::before { transform: scaleX(1); }
+
+  .item-label { 
+    @apply text-xs font-semibold uppercase tracking-wide text-slate-700;
+    margin-bottom: 8px;
+    line-height: 1.2;
+    flex-shrink: 0;
+  }
+  .item-value { 
+    @apply text-2xl font-bold leading-none text-slate-900;
+    margin: 8px 0;
+    flex-shrink: 0;
+  }
+  .item-desc { 
+    @apply text-xs leading-4 text-slate-600;
+    margin-top: 8px;
+    flex-shrink: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-grow: 1;
+    display: flex;
+    align-items: flex-end;
+    font-weight: 400;
+  }
+  
+  /* Responsive adjustments para labels y valores */
+  @media (max-width: 640px) {
+    .item-value {
+      @apply text-2xl;
+      margin: 12px 0 6px 0;
+    }
+    .item-label {
+      @apply text-[10px];
+      margin-bottom: 8px;
+    }
+    .item-desc {
+      @apply text-xs;
+      margin-top: 8px;
+    }
+  }
+
+  /* Loading */
+  .loading { @apply px-8 py-16 text-center; }
+  .loading-placeholder { @apply mt-16 flex flex-col items-center text-slate-500; }
+  .spinner {
+    @apply mx-auto my-6 h-14 w-14 rounded-full border-4 border-slate-200;
+    border-top-color: var(--accent-color);
+    animation: spin 1s linear infinite;
+  }
+
+  /* Gauges */
+  .gauges-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+  .gauge-card { @apply rounded-2xl border p-6 shadow-md transition; background: var(--bg-primary); }
+  .gauge-card:hover { @apply -translate-y-1 shadow-xl; }
+
+  /* Tabs */
+  .tabs { @apply mb-6 flex gap-2 rounded-xl border p-1; background: var(--bg-secondary); }
+  .tab-button { @apply flex-1 cursor-pointer rounded-lg px-5 py-3 text-sm font-medium text-slate-500 transition; background: none; border: none; }
+  .tab-button.active { @apply shadow-sm text-white; background: var(--gradient-accent); }
+  .tab-button:hover:not(.active) { @apply bg-white text-slate-900; }
+
+  /* Métricas listas */
+  .metrics-title { @apply mt-8 mb-4 text-2xl font-semibold text-slate-900; }
+  .metrics-list { @apply m-0 grid list-none gap-3 p-0; }
+  .metrics-list li { @apply flex items-center gap-3 rounded-xl border bg-slate-50 px-5 py-4 text-sm font-medium text-slate-900; }
+  .metrics-list li::before { content: "▶"; color: var(--accent-color); font-size: 12px; }
+
+  /* Estados */
+  .error { @apply flex items-center gap-3 rounded-xl border px-5 py-4 font-semibold; color: var(--error-color); background: #fef2f2; border-color: #fecaca; }
+  .error::before { content: "⚠"; font-size: 18px; }
+}
+
+/* ========== UTILITIES (pequeñas ayudas) ========== */
+@layer utilities {
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .pressable { @apply transition active:translate-y-px; }
+  .focus-ring { @apply outline-none ring-2 ring-offset-2 ring-[color:var(--accent-color)]/50; }
+
+  /* “Shift” opcional hacia la derecha en pantallas grandes */
+  .shift-right      { @apply xl:ml-10 2xl:ml-20; }
+  .card-shift-right { @apply xl:ml-6  2xl:ml-10; }
+
+  /* Evitar cortes en PDF */
+  .pdf-keep { break-inside: avoid; page-break-inside: avoid; }
+  .pdf-page { break-after: page; page-break-after: always; }
+}
+
+/* ========== Encabezado Diagnóstico ========== */
+.diagnostico-header h1 { @apply text-3xl font-bold leading-tight break-words; }
+.diagnostico-header small,
+.diagnostico-header .subtitle { @apply text-sm text-gray-500; }
+
+@layer components {
+  /* Contenedor de acciones (alineado a la derecha) */
+  .pdf-actions {
+    @apply mt-6 flex flex-wrap items-center justify-end gap-3;
+  }
+
+  /* Input de email opcional */
+  .pdf-email-input {
+    @apply min-w-[260px] rounded-xl border border-slate-200 bg-white/90 px-4 py-2
+           text-sm text-slate-900 shadow-sm backdrop-blur
+           placeholder:text-slate-400
+           focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500;
+  }
+
+  /* Botón primario reutilizable */
+  .btn-primary {
+    @apply inline-flex items-center gap-2 rounded-xl
+           bg-gradient-to-br from-blue-500 to-blue-700
+           px-4 py-2 text-sm font-semibold text-white
+           shadow-sm transition
+           hover:-translate-y-[1px] hover:shadow-md
+           focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/20
+           disabled:opacity-60 disabled:cursor-not-allowed;
+  }
+
+  /* Variante “enviar” (por si quieres diferenciar márgenes/tamaños) */
+  .pdf-send-btn {
+    @apply min-w-[220px] justify-center;
+  }
+
+  /* Spinner dentro del botón */
+  .btn-spinner {
+    @apply h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white;
+  }
+
+  /* Mensajes de estado */
+  .pdf-msg { @apply text-sm font-medium; }
+  .pdf-msg.is-error { @apply text-red-600; }
+  .pdf-msg.is-ok    { @apply text-emerald-600; }
+}
+
+@layer components {
+  /* contenedor */
+  .strategy-tabs {
+    @apply w-full mt-4 flex justify-center;
+  }
+
+  /* “pastilla” que agrupa los 2 botones */
+  .strategy-list {
+    @apply inline-flex gap-1 rounded-2xl border border-slate-200 bg-white p-1 shadow-sm;
+  }
+
+  /* botón base */
+  .strategy-trigger {
+    @apply px-5 py-2 rounded-xl text-sm font-medium text-slate-600 transition
+           data-[state=inactive]:bg-transparent;
+  }
+
+  /* hover cuando NO está activo */
+  .strategy-trigger:hover:not([data-state="active"]) {
+    @apply bg-blue-50 text-blue-700;
+  }
+
+  /* estado ACTIVO (lo pone shadcn con data-state="active") */
+  .strategy-trigger[data-state="active"] {
+    @apply text-white bg-gradient-to-r from-blue-500 to-blue-700 shadow;
+  }
+}
+
+@layer components {
+  /* Grupo de botones de diagnóstico (más visibles) */
+  .diagnostico-btn-group {
+    @apply flex gap-4 mb-6 mt-2;
+    justify-content: flex-start;
+  }
+  .diagnostico-btn-group .btn-primary {
+    @apply text-lg px-6 py-3 font-bold shadow-lg;
+    box-shadow: 0 4px 16px 0 rgba(59,130,246,0.10);
+  }
+}

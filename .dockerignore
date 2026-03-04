@@ -1,0 +1,50 @@
+# ──────────────────────────────────────────────
+# .dockerignore raíz — aplica al contexto de build de "api" y "web"
+# (los que usan context: . en compose.yml)
+# ──────────────────────────────────────────────
+
+# Dependencias locales (se instalan dentro del contenedor)
+node_modules/
+**/node_modules/
+
+# Artefactos de build locales
+dist/
+**/dist/
+build/
+.next/
+.cache/
+
+# Git
+.git/
+.gitignore
+
+# Variables de entorno — NUNCA incluir en imagen
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+
+# SO y editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Archivos de test
+**/*.test.ts
+**/*.spec.ts
+coverage/
+
+# Documentación (no necesaria en la imagen)
+docs/
+*.md
+!README.md
+
+# Scripts solo para desarrollo local
+scripts/
+
+# Carpeta de deployment (no necesaria dentro del contenedor)
+deployment/

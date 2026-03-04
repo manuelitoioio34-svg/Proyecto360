@@ -1,0 +1,58 @@
+version: "3.9"
+
+# Compose para build local y pruebas. Define imágenes con nombre/tag para poder hacer push.
+# MONGO_URI debe apuntar a MongoDB Atlas (no se levanta MongoDB localmente).
+services:
+  micro-pagespeed:
+    image: docker.io/juancoder/pulsechoukairperformancert-micro-pagespeed:${TAG:-latest}
+    build: ./microPagespeed
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - PS_PORT=${PS_PORT:-3001}
+      - PSI_API_KEY=AIzaSyC_0_KjQKRPME_GayWYQW0ZQaK9eEsT5P4
+    ports:
+      - "${PS_PORT:-3001}:3001"
+
+  security-service:
+    image: docker.io/juancoder/pulsechoukairperformancert-security-service:${TAG:-latest}
+    build: ./security-service
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - PORT=${SECURITY_PORT:-3002}
+    ports:
+      - "${SECURITY_PORT:-3002}:3002"
+
+  api:
+    image: docker.io/juancoder/pulsechoukairperformancert-api:${TAG:-latest}
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - PORT=${API_PORT:-4000}
+      - MONGO_URI=${MONGO_URI}
+      - MS_PAGESPEED_URL=http://micro-pagespeed:${PS_PORT:-3001}
+      - MS_SECURITY_URL=http://security-service:${SECURITY_PORT:-3002}
+      - REDIS_ENABLED=${REDIS_ENABLED:-false}
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASS=${EMAIL_PASS}
+      - APP_BASE_URL=${APP_BASE_URL}
+    depends_on:
+      - micro-pagespeed
+      - security-service
+    ports:
+      - "${API_PORT:-4000}:4000"
+
+  web:
+    image: docker.io/juancoder/pulsechoukairperformancert-web:${TAG:-latest}
+    build:
+      context: .
+      dockerfile: src/Dockerfile.web
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "${WEB_PORT:-8080}:80"

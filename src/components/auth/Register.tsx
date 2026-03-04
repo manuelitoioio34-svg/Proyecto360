@@ -1,0 +1,332 @@
+// src/pages/auth/Register.tsx
+import React, { useMemo, useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Button } from '../../shared/ui/button';
+import { Input } from '../../shared/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '../../shared/ui/card';
+import { useAuth } from './AuthContext';
+import { Eye, EyeOff, Mail, Lock, User, UserPlus, CheckCircle, XCircle, Info } from 'lucide-react';
+
+export default function RegisterPage() {
+  const { register, user } = useAuth();
+  const navigate = useNavigate();
+
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  // Campos eliminados: título/cargo y rol. La asignación de rol se realizará por un admin.
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [focusedField, setFocusedField] = useState<string | null>(null);
+
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [welcomeName, setWelcomeName] = useState('');
+
+  // Validation states
+  const nameValid = name.trim().length >= 2;
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const passwordValid = password.length >= 6;
+  const formValid = nameValid && emailValid && passwordValid;
+
+  const isPrivileged = user && user.role !== 'cliente';
+
+  // Roles removidos del formulario de registro.
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    try {
+      const newUser = await register(name, email, password);
+      setWelcomeName(newUser?.name || name);
+      setShowWelcome(true);
+      // Redirigir tras animación de bienvenida
+      setTimeout(() => navigate('/', { replace: true }), 2200);
+    } catch (e: any) {
+      setError(e?.message || 'Error al crear la cuenta');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-white flex items-center justify-center p-0 m-0">
+      {/* Logo superior eliminado para evitar duplicado; el logo queda solo dentro del Card */}
+      {/* Elementos de fondo animados */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <motion.div
+          animate={{
+            x: [0, -40, 0],
+            y: [0, 60, 0],
+            rotate: [0, 135, 270]
+          }}
+          transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
+          className="absolute top-1/3 right-1/3 w-20 h-20 bg-gray-100 rounded-full opacity-20"
+        />
+        <motion.div
+          animate={{
+            x: [0, 30, 0],
+            y: [0, -40, 0],
+            rotate: [0, -135, -270]
+          }}
+          transition={{ duration: 32, repeat: Infinity, ease: "linear" }}
+          className="absolute bottom-1/3 left-1/3 w-16 h-16 bg-gray-200 rounded-full opacity-20"
+        />
+      </div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="w-full max-w-2xl relative z-10 px-4"
+      >
+        <Card className="backdrop-blur-lg bg-white/95 border border-gray-300 shadow-2xl rounded-2xl overflow-hidden">
+          <CardHeader className="text-center pb-6 pt-8 bg-gradient-to-r from-[#919191] to-black hover:from-[#6b6b6b] hover:to-black text-white rounded-t-2xl">
+            <div className="mx-auto mb-4 flex flex-col items-center gap-2">
+              <img src="/LogoChoucair.png" alt="Choucair" className="h-14 w-auto" />
+              <span className="text-[10px] tracking-[0.25em] text-gray-300 font-medium">BUSINESS CENTRIC TESTING</span>
+            </div>
+            <CardTitle className="text-3xl font-bold mb-3">Crear nueva cuenta</CardTitle>
+            <p className="text-gray-200 text-base">Únete a nuestra plataforma</p>
+          </CardHeader>
+          <CardContent className="p-10">
+            {/* Icon moved to content area, centered */}
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+              className="mx-auto w-24 h-24 bg-gray-900/10 rounded-full flex items-center justify-center mb-10"
+            >
+              <UserPlus className="w-12 h-12 text-gray-900" />
+            </motion.div>
+            <form onSubmit={onSubmit} className="space-y-8">
+              {/* Campo de nombre */}
+              <motion.div
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 0.3 }}
+              >
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Nombre completo
+                </label>
+                <div className="relative">
+                  <User className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors ${focusedField === 'name' ? 'text-slate-600' : 'text-gray-400'
+                    }`} />
+                  <Input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    onFocus={() => setFocusedField('name')}
+                    onBlur={() => setFocusedField(null)}
+                    className="pl-10 pr-10 h-12 border-2 rounded-xl transition-all duration-200 focus:border-slate-500 focus:ring-slate-500"
+                    placeholder="Tu nombre completo"
+                    required
+                  />
+                  {name && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      {nameValid ? (
+                        <CheckCircle className="w-5 h-5 text-green-500" />
+                      ) : (
+                        <XCircle className="w-5 h-5 text-red-500" />
+                      )}
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+
+              {/* Campo de correo */}
+              <motion.div
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 0.35 }}
+              >
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Correo electrónico
+                </label>
+                <div className="relative">
+                  <Mail className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors ${focusedField === 'email' ? 'text-slate-600' : 'text-gray-400'
+                    }`} />
+                  <Input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    onFocus={() => setFocusedField('email')}
+                    onBlur={() => setFocusedField(null)}
+                    className="pl-10 pr-10 h-12 border-2 rounded-xl transition-all duration-200 focus:border-slate-500 focus:ring-slate-500"
+                    placeholder="tu@email.com"
+                    required
+                  />
+                  {email && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      {emailValid ? (
+                        <CheckCircle className="w-5 h-5 text-green-500" />
+                      ) : (
+                        <XCircle className="w-5 h-5 text-red-500" />
+                      )}
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+
+              {/* Campo de contraseña */}
+              <motion.div
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 0.4 }}
+              >
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Contraseña
+                </label>
+                <div className="relative">
+                  <Lock className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors ${focusedField === 'password' ? 'text-slate-600' : 'text-gray-400'
+                    }`} />
+                  <Input
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    onFocus={() => setFocusedField('password')}
+                    onBlur={() => setFocusedField(null)}
+                    className="pl-10 pr-10 h-12 border-2 rounded-xl transition-all duration-200 focus:border-slate-500 focus:ring-slate-500"
+                    placeholder="Mínimo 6 caracteres"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+                {password && (
+                  <div className="mt-2 text-xs">
+                    <div className={`transition-colors ${passwordValid ? 'text-green-600' : 'text-red-600'}`}>
+                      {passwordValid ? '✓ Contraseña válida' : '✗ Mínimo 6 caracteres'}
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+
+              {/* Aviso: el rol lo asigna un administrador */}
+              <motion.div
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 0.45 }}
+              >
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-xl flex items-start gap-2 text-blue-800 text-sm">
+                  <Info className="w-5 h-5 mt-0.5" />
+                  <span>Tu rol en la organización será asignado por un administrador después del registro.</span>
+                </div>
+              </motion.div>
+
+              {/* Campos de Título/Cargo y Rol eliminados: el rol lo asigna el administrador y el título no es requerido al registrarse. */}
+
+              {/* Mensaje de error */}
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="p-3 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2 text-red-700"
+                >
+                  <XCircle className="w-5 h-5" />
+                  <span className="text-sm">{error}</span>
+                </motion.div>
+              )}
+
+              {/* Botón de enviar */}
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.55 }}
+              >
+                <Button
+                  type="submit"
+                  disabled={loading || !formValid}
+                  className="w-full h-12 bg-gradient-to-r from-[#919191] to-black hover:from-[#6b6b6b] hover:to-black text-white font-semibold rounded-xl transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:scale-100"
+                >
+                  {loading ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                      Creando cuenta...
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <UserPlus className="w-5 h-5" />
+                      Crear cuenta
+                    </div>
+                  )}
+                </Button>
+              </motion.div>
+            </form>
+
+            {/* Enlace para iniciar sesión */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6 }}
+              className="mt-6 text-sm text-center text-gray-600"
+            >
+              ¿Ya tienes cuenta?{' '}
+              <Link to="/login" className="text-gray-900 hover:text-black font-medium hover:underline transition-colors">
+                Inicia sesión aquí
+              </Link>
+            </motion.div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {showWelcome && (
+        <WelcomeOverlay name={welcomeName} />
+      )}
+    </div>
+  );
+}
+
+function WelcomeOverlay({ name }: { name: string }) {
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center">
+      <div className="absolute inset-0 bg-white/80 backdrop-blur-sm" />
+
+      {/* Card central */}
+      <motion.div
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ type: 'spring', stiffness: 180, damping: 18 }}
+        className="relative w-[92%] max-w-md rounded-3xl border bg-white shadow-2xl p-8 text-center"
+      >
+        <motion.div
+          initial={{ scale: 0, rotate: -90 }}
+          animate={{ scale: [0, 1.1, 1], rotate: 0 }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
+          className="mx-auto mb-6 h-16 w-16 rounded-full bg-gradient-to-r from-gray-100 to-gray-200 flex items-center justify-center"
+        >
+          <CheckCircle className="w-8 h-8 text-gray-900" />
+        </motion.div>
+        <motion.h3
+          initial={{ y: 10, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.15 }}
+          className="text-2xl font-bold text-gray-900"
+        >
+          ¡Bienvenidos a Visión web 360°{name ? `, ${name}` : ''}!
+        </motion.h3>
+        <motion.p
+          initial={{ y: 10, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.25 }}
+          className="text-gray-600 mt-2"
+        >
+          Tu cuenta se creó exitosamente. Preparando tu entorno...
+        </motion.p>
+        <motion.div
+          initial={{ width: 0 }}
+          animate={{ width: "100%" }}
+          transition={{ delay: 0.5, duration: 1.5 }}
+          className="mt-6 h-1 bg-gradient-to-r from-[#919191] to-black rounded-full"
+        />
+      </motion.div>
+    </div>
+  );
+}

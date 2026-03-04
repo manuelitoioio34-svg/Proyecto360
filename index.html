@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Visión web 360° — Choucair</title>
+    <!-- Aplicar dark class ANTES de que React monte, para evitar flash -->
+    <script>
+      try {
+        if (localStorage.getItem('choucair-dark-mode') === 'true') {
+          document.documentElement.classList.add('dark');
+          document.documentElement.style.background = '#111111';
+        } else {
+          document.documentElement.style.background = '#f0f0f0';
+        }
+      } catch (e) {}
+    </script>
+    <!-- Fuentes corporativas Choucair -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Courier+Prime:wght@400;700&family=Inter:wght@400;500;600;700&family=Manrope:wght@700&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

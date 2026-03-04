@@ -1,0 +1,329 @@
+/* Centrado vertical forzado para el valor del gauge en PDF */
+.pdf-root .diagnostico-grid .item svg text {
+  dominant-baseline: middle !important;
+  alignment-baseline: middle !important;
+  text-anchor: middle !important;
+  /* Refuerzo para centrar absolutamente el texto en SVG */
+  x: 50% !important;
+  y: 50% !important;
+  /* fallback para navegadores viejos o html2canvas */
+  transform: translate(0, 0) !important;
+}
+
+/* Refuerzo: centra el texto SVG de los gauges, incluso si el componente no lo hace */
+.pdf-root .diagnostico-grid .item svg text.gauge-value, /* si usan una clase específica */
+.pdf-root .diagnostico-grid .item svg text {
+  dominant-baseline: middle !important;
+  alignment-baseline: middle !important;
+  text-anchor: middle !important;
+  x: 50% !important;
+  y: 50% !important;
+}
+
+/* Fuerza 4 columnas fijas en la grid principal SOLO en PDF */
+.pdf-root .diagnostico-grid {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 24px !important;
+}
+/* Burbuja de estilos SOLO para el área a exportar */
+.pdf-root {
+  /* ancho fijo = coincide con el captureWidthPx del EmailPdfBar */
+  width: 1200px;
+  max-width: 1200px;
+  background: #ffffff;
+  color: #111827; /* gray-900 */
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  letter-spacing: 0;
+  line-height: 1.45;
+}
+
+/* Normalización suave de tipografía dentro del PDF (evita títulos gigantes) */
+.pdf-root h1 { margin: 0; font-weight: 800; font-size: 28px; line-height: 1.15; }
+.pdf-root h2 { margin: 0; font-weight: 700; font-size: 22px; line-height: 1.2; }
+.pdf-root h3 { margin: 0; font-weight: 700; font-size: 18px; line-height: 1.25; }
+.pdf-root p  { margin: 0; font-size: 14px; line-height: 1.55; }
+
+/* Tarjetas y secciones, por si tu vista depende de utilidades de Tailwind */
+.pdf-root .card {
+  border: 1px solid #e5e7eb; /* gray-200 */
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: none;
+}
+
+/* Encabezado azul (si lo usas) con texto controlado */
+.pdf-root .hero-title {
+  font-size: 28px;
+  line-height: 1.15;
+  font-weight: 800;
+  color: #0b1026; /* casi negro, mejora contraste sobre azul */
+  word-break: break-word;
+}
+
+/* Evita saltos raros en medidores/canvas/svg durante html2canvas */
+.pdf-root svg, .pdf-root canvas, .pdf-root img { image-rendering: auto; }
+
+/* Evita que el contenedor cambie por responsive */
+@media (max-width: 1200px) {
+  .pdf-root { width: 1200px; }
+}
+
+/* Normalización fuerte para títulos del PDF */
+.pdf-root .diagnostico-title { 
+  font-size: 24px !important; 
+  line-height: 1.2 !important; 
+  font-weight: 800; 
+  margin: 0 0 6px 0;
+}
+
+/* Centrado y contención de tarjetas/gauges SOLO en PDF */
+.pdf-root .diagnostico-grid .item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  overflow: hidden;               /* evita que el SVG se “salga” del cuadro */
+  border-radius: 16px;            /* respeta bordes redondeados al cortar */
+}
+
+.pdf-root .diagnostico-grid .item .item-label { 
+  align-self: stretch;
+}
+
+.pdf-root .diagnostico-grid .item .w-full {
+  min-height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Asegura que SVG/canvas no generen espacios inline ni desborden */
+.pdf-root svg, 
+.pdf-root canvas, 
+.pdf-root img { 
+  display: block; 
+  max-width: 100%; 
+  height: auto; 
+}
+
+/* Box sizing consistente para evitar ensanches inesperados */
+.pdf-root, 
+.pdf-root * { box-sizing: border-box; }
+
+/* Tipografía y contención general */
+.pdf-root { background:#fff; color:#111827; }
+.pdf-root, .pdf-root * { box-sizing: border-box; }
+
+/* Evita que se partan tarjetas/barras entre páginas */
+.pdf-root .card,
+.pdf-root .item { break-inside: avoid; page-break-inside: avoid; }
+
+/* Centrado/contención de gauges en tarjetas */
+.pdf-root .diagnostico-grid .item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  overflow: hidden;          /* que nada sobresalga del borde redondeado */
+  border-radius: 16px;
+}
+
+.pdf-root .diagnostico-grid .item .w-full {
+  min-height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Los gráficos no deben dejar espacios inline ni desbordar */
+.pdf-root svg,
+.pdf-root canvas,
+.pdf-root img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Título: tamaño estable para PDF (evita inflarse) */
+.pdf-root .diagnostico-title {
+  font-size: 24px !important;
+  line-height: 1.2 !important;
+  font-weight: 800;
+  margin: 0 0 6px 0;
+}
+.pdf-root, .pdf-root * { box-sizing: border-box; }
+.pdf-root { background:#fff; color:#111827; }
+
+/* Evita desbordes y cortes en tarjetas/gauges */
+.pdf-root .diagnostico-grid .item {
+  display:flex; flex-direction:column; align-items:center; text-align:center;
+  overflow:hidden; border-radius:16px; break-inside:avoid; page-break-inside:avoid;
+}
+.pdf-root .diagnostico-grid .item .w-full {
+  min-height:160px; display:flex; align-items:center; justify-content:center;
+}
+.pdf-root svg, .pdf-root canvas, .pdf-root img { display:block; max-width:100%; height:auto; }
+
+/* Título estable */
+.pdf-root .diagnostico-title { font-size:24px !important; line-height:1.2 !important; font-weight:800; margin:0 0 6px 0; }
+
+/* 2.1 Evitar cortes a la mitad y centrar/contener gauges */
+.pdf-root, .pdf-root * { box-sizing: border-box; }
+.pdf-root .card,
+.pdf-root .item { break-inside: avoid; page-break-inside: avoid; }
+
+.pdf-root .diagnostico-grid .item {
+  display:flex; flex-direction:column; align-items:center; text-align:center;
+  overflow:hidden; border-radius:16px;
+}
+.pdf-root .diagnostico-grid .item .w-full {
+  min-height:160px; display:flex; align-items:center; justify-content:center;
+}
+.pdf-root svg, .pdf-root canvas, .pdf-root img { display:block; max-width:100%; height:auto; }
+
+/* 2.2 Encabezado bonito en PDF: sin franja azul y con respiro arriba */
+.pdf-root { padding-top: 8px; }
+.pdf-root .diagnostico-title {
+  background: none !important;
+  text-shadow: none !important;
+  font-size: 24px !important;
+  line-height: 1.2 !important;
+  font-weight: 800;
+  margin: 0 0 8px 0;
+}
+/* Si tu franja azul es un pseudo-elemento del título, lo ocultamos */
+.pdf-root .diagnostico-title::before,
+.pdf-root .diagnostico-title::after { display: none !important; }
+/* Si la franja pertenece a la barra de pestañas, la suavizamos/ocultamos */
+.pdf-root .tabs::before,
+.pdf-root .tabs::after { display: none !important; }
+/* Evitar sticky en PDF que pueda superponerse al título */
+.pdf-root .sticky,
+.pdf-root [style*="position: sticky"] { position: static !important; top: auto !important; }
+
+.pdf-root, .pdf-root * { box-sizing: border-box; }
+.pdf-root .card, .pdf-root .item { break-inside: avoid; page-break-inside: avoid; }
+.pdf-root .diagnostico-grid .item { display:flex; flex-direction:column; align-items:center; text-align:center; overflow:hidden; border-radius:16px; }
+.pdf-root .diagnostico-grid .item .w-full { min-height:160px; display:flex; align-items:center; justify-content:center; }
+.pdf-root svg, .pdf-root canvas, .pdf-root img { display:block; max-width:100%; height:auto; }
+.pdf-root .diagnostico-title { font-size:24px !important; line-height:1.2 !important; font-weight:800; margin:0 0 8px 0; background:none !important; }
+
+/* ===== Fix bullets/viñetas SOLO en PDF ===== */
+.pdf-root ul,
+.pdf-root ol {
+  /* Quitamos los bullets nativos para evitar recortes fuera del borde */
+  list-style: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Viñeta consistente (•) que jamás se sale del borde */
+.pdf-root li {
+  position: relative;
+  padding-left: 16px;        /* espacio para el punto */
+  margin: 6px 0;             /* respiración entre líneas */
+  break-inside: avoid;       /* no partas un li a la mitad */
+}
+
+.pdf-root li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  top: 0.2em;                /* centra el punto verticalmente */
+  line-height: 1;
+  font-size: 1rem;
+  color: #6b7280;            /* gris suave; cámbialo si quieres */
+}
+
+/* Asegura que el contenedor del plan no recorte el marcador */
+.pdf-root .plan,
+.pdf-root .action-plan,
+.pdf-root .recommendations,
+.pdf-root .seo-recommendations,
+.pdf-root .card.box,
+.pdf-root .card.plan {
+  overflow: visible !important;
+}
+
+/* === ANTI-CORTE DE TARJETAS/SECCIONES ENTRE PÁGINAS EN PDF === */
+.pdf-root .diagnostico-grid,
+.pdf-root .cards-wrapper,
+.pdf-root .metric-section,
+.pdf-root .metric-card,
+.pdf-root .item,
+.pdf-root .card {
+  break-inside: avoid !important;
+  page-break-inside: avoid !important;
+  /* Opcional: fuerza salto después de cada tarjeta si lo necesitas */
+  /* page-break-after: auto; */
+}
+
+/* Si usas grid, refuerza también el grid container */
+.pdf-root .diagnostico-grid {
+  break-inside: avoid !important;
+  page-break-inside: avoid !important;
+}
+
+/* Si tienes secciones grandes, evita que se corten */
+.pdf-root .section,
+.pdf-root .pdf-section {
+  break-inside: avoid !important;
+  page-break-inside: avoid !important;
+}
+
+/* Refuerzo para listas de recomendaciones o bloques de texto */
+.pdf-root ul,
+.pdf-root ol,
+.pdf-root li {
+  break-inside: avoid !important;
+  page-break-inside: avoid !important;
+}
+
+/* Ajuste: margen inferior grande para evitar cortes de la última fila en PDF */
+.pdf-root .diagnostico-grid {
+  margin-bottom: 80px !important;
+}
+
+/* Ajuste: reduce el alto mínimo de las tarjetas para que quepan más por página */
+.pdf-root .diagnostico-grid .item .w-full {
+  min-height: 120px !important;
+}
+
+/* Refuerzo: grid de métricas perfectamente alineada y centrada */
+.pdf-root .diagnostico-grid {
+  align-items: center !important;
+  justify-items: center !important;
+  margin-bottom: 80px !important;
+  padding-bottom: 0 !important;
+}
+
+.pdf-root .diagnostico-grid .item {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  min-height: 180px !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.pdf-root .diagnostico-grid .item .item-label {
+  margin-bottom: 8px !important;
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  text-align: center !important;
+  width: 100%;
+}
+
+.pdf-root .diagnostico-grid .item .w-full {
+  min-height: 120px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+}

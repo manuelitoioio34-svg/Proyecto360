@@ -1,0 +1,49 @@
+version: "3.9"
+
+# Archivo de despliegue SOLO con imágenes ya publicadas en Docker Hub.
+# No construye nada: simplemente hace pull y levanta contenedores.
+# MONGO_URI debe apuntar a MongoDB Atlas. Usa: PSI_API_KEY=TU_KEY ./scripts/deploy-from-hub.sh
+
+services:
+  micro-pagespeed:
+    image: docker.io/juancoder/pulsechoukairperformancert-micro-pagespeed:${TAG:-latest}
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - PS_PORT=${PS_PORT:-3001}
+      - PSI_API_KEY=AIzaSyC_0_KjQKRPME_GayWYQW0ZQaK9eEsT5P4
+    ports:
+      - "${PS_PORT:-3001}:3001"
+
+  security-service:
+    image: docker.io/juancoder/pulsechoukairperformancert-security-service:${TAG:-latest}
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - PORT=${SECURITY_PORT:-3002}
+    ports:
+      - "${SECURITY_PORT:-3002}:3002"
+
+  api:
+    image: docker.io/juancoder/pulsechoukairperformancert-api:${TAG:-latest}
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - PORT=${API_PORT:-4000}
+      - MONGO_URI=${MONGO_URI}
+      - MS_PAGESPEED_URL=http://micro-pagespeed:${PS_PORT:-3001}
+      - MS_SECURITY_URL=http://security-service:${SECURITY_PORT:-3002}
+      - REDIS_ENABLED=${REDIS_ENABLED:-false}
+    depends_on:
+      - micro-pagespeed
+      - security-service
+    ports:
+      - "${API_PORT:-4000}:4000"
+
+  web:
+    image: docker.io/juancoder/pulsechoukairperformancert-web:${TAG:-latest}
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "${WEB_PORT:-8080}:80"

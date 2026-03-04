@@ -1,0 +1,96 @@
+/* Minimal PDF scope styles: ONLY applied when we add the .pdf-root class (modo mejorado).
+   WYSIWYG (exactVisual=true) ya NO agrega esta clase, así que la vista normal no se altera. */
+
+.pdf-root {
+  width: 1200px;
+  max-width: 1200px;
+  background: #fff;
+  color: #111827;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans";
+  line-height: 1.45;
+}
+
+.pdf-root,
+.pdf-root * {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.pdf-root p,
+.pdf-root li,
+.pdf-root span,
+.pdf-root div {
+  line-height: 1.4;
+  letter-spacing: 0.25px;
+}
+
+.pdf-root li {
+  display: flex;
+  align-items: flex-start;
+}
+
+.pdf-root,
+.pdf-root * {
+  box-sizing: border-box;
+}
+
+/* Evitar cortes bruscos dentro de elementos críticos */
+.pdf-root .card,
+.pdf-root .item,
+.pdf-root .metric-card,
+.pdf-root [data-pdf-avoid] {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+/* Centrado básico de gauges sin forzar tamaños/grilla */
+.pdf-root svg text {
+  dominant-baseline: middle;
+  alignment-baseline: middle;
+  text-anchor: middle;
+}
+
+/* Ajustes seguros para listas en PDF */
+.pdf-root ul,
+.pdf-root ol {
+  margin: 0;
+  padding: 0;
+}
+
+.pdf-root li {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+/* Neutralizar posiciones sticky/fixed que pueden superponerse */
+.pdf-root .sticky,
+.pdf-root [style*="position: sticky"] {
+  position: static !important;
+  top: auto !important;
+}
+
+/* Evitar que imágenes/canvas aparezcan con artefactos inline */
+.pdf-root img,
+.pdf-root canvas,
+.pdf-root svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Pequeño padding superior para respirar el título si existe */
+.pdf-root {
+  padding-top: 8px;
+}
+
+/* Título estable */
+.pdf-root .diagnostico-title {
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.2;
+  margin: 0 0 8px 0;
+}
+
+/* No forzamos grid-template-columns: dejamos la distribución real */
+
+/* Fin: mantener el archivo liviano para reducir riesgo de efectos secundarios y mejorar performance html2canvas */

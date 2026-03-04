@@ -1,0 +1,229 @@
+# =============================================================================
+# Pipeline CI/CD — Diagnóstico Web 360°
+# Azure DevOps
+#
+# VARIABLES SECRETAS (configurar en Azure DevOps > Pipelines > Edit > Variables):
+#   DOCKER_HUB_TOKEN  → Access Token de Docker Hub           [secreto]
+#   MONGO_URI         → URI de conexión a MongoDB Atlas       [secreto]
+#   EMAIL_PASS        → Contraseña / App password del correo  [secreto]
+#
+# VARIABLES NO SECRETAS (también en Pipeline Variables o dejar los valores de abajo):
+#   EMAIL_USER        → Correo remitente para notificaciones
+#   APP_BASE_URL      → URL pública del ambiente (ej. http://IP_SERVIDOR:8080)
+#
+# POOL: Reemplaza "NOMBRE_AGENTE" con el nombre real del agente auto-hospedado.
+# =============================================================================
+
+trigger:
+  branches:
+    include:
+      - refs/heads/test_despliegue
+      - refs/heads/master
+
+variables:
+  # Valores fijos del proyecto (no requieren configuración en Azure DevOps)
+  IMAGE_TAG: 'build-$(Build.BuildId)'          # Tag único por build para trazabilidad
+  DOCKER_REGISTRY: 'docker.io'
+  DOCKER_HUB_USER: 'juancoder'                 # Usuario Docker Hub del proyecto
+  IMAGE_BASE: 'juancoder/pulsechoukairperformancert'
+  PSI_API_KEY_VALUE: 'AIzaSyC_0_KjQKRPME_GayWYQW0ZQaK9eEsT5P4'  # Google PageSpeed
+  COMPOSE_FILE: 'deployment/compose.yml'
+  COMPOSE_DEPLOY_FILE: 'deployment/compose.deploy.yml'
+
+# =============================================================================
+# STAGE 1 — BUILD & PUSH
+# Construye las 4 imágenes Docker y las publica en Docker Hub.
+# Se ejecuta en ambos branches (test_despliegue y master).
+# =============================================================================
+stages:
+- stage: Build
+  displayName: 'Construir y Publicar Imágenes'
+  jobs:
+  - job: BuildAndPush
+    displayName: 'Build Docker Images → Docker Hub'
+    pool:
+      name: NOMBRE_AGENTE   # ← Reemplaza con el nombre del agente que tiene Docker
+    steps:
+
+    - checkout: self
+      fetchDepth: 1
+      displayName: 'Checkout del repositorio'
+
+    # -- Login en Docker Hub --------------------------------------------------
+    - script: |
+        echo "$(DOCKER_HUB_TOKEN)" | docker login $(DOCKER_REGISTRY) \
+          -u $(DOCKER_HUB_USER) --password-stdin
+      displayName: 'Login en Docker Hub (juancoder)'
+
+    # -- Build de las 4 imágenes con docker compose ---------------------------
+    - script: |
+        cd $(Build.SourcesDirectory)
+        TAG=$(IMAGE_TAG) docker compose \
+          -f $(COMPOSE_FILE) \
+          build --no-cache --parallel
+      displayName: 'Build: micro-pagespeed | security-service | api | web'
+
+    # -- Push de cada imagen --------------------------------------------------
+    - script: |
+        docker push $(DOCKER_REGISTRY)/$(IMAGE_BASE)-micro-pagespeed:$(IMAGE_TAG)
+        docker push $(DOCKER_REGISTRY)/$(IMAGE_BASE)-security-service:$(IMAGE_TAG)
+        docker push $(DOCKER_REGISTRY)/$(IMAGE_BASE)-api:$(IMAGE_TAG)
+        docker push $(DOCKER_REGISTRY)/$(IMAGE_BASE)-web:$(IMAGE_TAG)
+      displayName: 'Push de imágenes a Docker Hub'
+
+    # -- Tag adicional "latest" solo desde master ------------------------------
+    - script: |
+        docker tag $(DOCKER_REGISTRY)/$(IMAGE_BASE)-micro-pagespeed:$(IMAGE_TAG) $(DOCKER_REGISTRY)/$(IMAGE_BASE)-micro-pagespeed:latest
+        docker tag $(DOCKER_REGISTRY)/$(IMAGE_BASE)-security-service:$(IMAGE_TAG) $(DOCKER_REGISTRY)/$(IMAGE_BASE)-security-service:latest
+        docker tag $(DOCKER_REGISTRY)/$(IMAGE_BASE)-api:$(IMAGE_TAG)              $(DOCKER_REGISTRY)/$(IMAGE_BASE)-api:latest
+        docker tag $(DOCKER_REGISTRY)/$(IMAGE_BASE)-web:$(IMAGE_TAG)              $(DOCKER_REGISTRY)/$(IMAGE_BASE)-web:latest
+
+        docker push $(DOCKER_REGISTRY)/$(IMAGE_BASE)-micro-pagespeed:latest
+        docker push $(DOCKER_REGISTRY)/$(IMAGE_BASE)-security-service:latest
+        docker push $(DOCKER_REGISTRY)/$(IMAGE_BASE)-api:latest
+        docker push $(DOCKER_REGISTRY)/$(IMAGE_BASE)-web:latest
+      displayName: 'Tag + Push :latest (solo master)'
+      condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
+
+    # -- Limpieza de imágenes locales para no llenar el disco del agente ------
+    - script: |
+        docker image prune -f
+      displayName: 'Limpiar imágenes colgantes'
+      condition: always()
+
+# =============================================================================
+# STAGE 2 — DEPLOY A TEST
+# Despliega en el servidor de pruebas usando las imágenes recién publicadas.
+# Solo se activa desde la rama test_despliegue.
+# =============================================================================
+- stage: DeployToTest
+  displayName: 'Desplegar a Ambiente de Pruebas'
+  dependsOn: Build
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/test_despliegue')
+  jobs:
+  - job: DeployTest
+    displayName: 'Docker Compose UP en Test'
+    pool:
+      name: NOMBRE_AGENTE   # ← Mismo agente (o uno diferente) en el servidor de pruebas
+    steps:
+
+    - checkout: self
+      fetchDepth: 1
+      displayName: 'Checkout (para obtener compose.deploy.yml)'
+
+    # -- Bajar contenedores existentes ----------------------------------------
+    - script: |
+        cd $(Build.SourcesDirectory)
+        TAG=$(IMAGE_TAG) docker compose \
+          -f $(COMPOSE_DEPLOY_FILE) \
+          down --remove-orphans || true
+      displayName: 'Detener contenedores anteriores'
+
+    # -- Generar .env de despliegue en el servidor ----------------------------
+    - script: |
+        cat > $(Build.SourcesDirectory)/.env << EOF
+        NODE_ENV=production
+        TAG=$(IMAGE_TAG)
+        MONGO_URI=$(MONGO_URI)
+        PSI_API_KEY=$(PSI_API_KEY_VALUE)
+        EMAIL_USER=$(EMAIL_USER)
+        EMAIL_PASS=$(EMAIL_PASS)
+        APP_BASE_URL=$(APP_BASE_URL)
+        API_PORT=4000
+        PS_PORT=3001
+        SECURITY_PORT=3002
+        WEB_PORT=8080
+        REDIS_ENABLED=false
+        EOF
+      displayName: 'Generar .env de pruebas'
+
+    # -- Pull + Up de los 4 servicios -----------------------------------------
+    - script: |
+        cd $(Build.SourcesDirectory)
+        TAG=$(IMAGE_TAG) docker compose \
+          -f $(COMPOSE_DEPLOY_FILE) \
+          --env-file .env \
+          pull
+        TAG=$(IMAGE_TAG) docker compose \
+          -f $(COMPOSE_DEPLOY_FILE) \
+          --env-file .env \
+          up -d
+      displayName: 'Pull imágenes y levantar servicios'
+
+    # -- Verificación rápida de salud -----------------------------------------
+    - script: |
+        echo "Esperando 15s para que los contenedores inicien..."
+        sleep 15
+        docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+      displayName: 'Listar contenedores activos (verificación)'
+
+    # -- Limpieza de imágenes antiguas en el servidor -------------------------
+    - script: |
+        docker image prune -f
+      displayName: 'Limpiar imágenes colgantes en el servidor'
+      condition: always()
+
+# =============================================================================
+# STAGE 3 — DEPLOY A PRODUCCIÓN
+# Solo se activa desde master. Adaptar el pool al agente de producción.
+# =============================================================================
+- stage: DeployToProd
+  displayName: 'Desplegar a Producción'
+  dependsOn: Build
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
+  jobs:
+  - job: DeployProd
+    displayName: 'Docker Compose UP en Producción'
+    pool:
+      name: NOMBRE_AGENTE_PROD   # ← Reemplaza con el agente del servidor de producción
+    steps:
+
+    - checkout: self
+      fetchDepth: 1
+      displayName: 'Checkout'
+
+    - script: |
+        cd $(Build.SourcesDirectory)
+        TAG=$(IMAGE_TAG) docker compose \
+          -f $(COMPOSE_DEPLOY_FILE) \
+          down --remove-orphans || true
+      displayName: 'Detener contenedores en producción'
+
+    - script: |
+        cat > $(Build.SourcesDirectory)/.env << EOF
+        NODE_ENV=production
+        TAG=$(IMAGE_TAG)
+        MONGO_URI=$(MONGO_URI)
+        PSI_API_KEY=$(PSI_API_KEY_VALUE)
+        EMAIL_USER=$(EMAIL_USER)
+        EMAIL_PASS=$(EMAIL_PASS)
+        APP_BASE_URL=$(APP_BASE_URL)
+        API_PORT=4000
+        PS_PORT=3001
+        SECURITY_PORT=3002
+        WEB_PORT=80
+        REDIS_ENABLED=false
+        EOF
+      displayName: 'Generar .env de producción'
+
+    - script: |
+        cd $(Build.SourcesDirectory)
+        TAG=$(IMAGE_TAG) docker compose \
+          -f $(COMPOSE_DEPLOY_FILE) \
+          --env-file .env \
+          pull
+        TAG=$(IMAGE_TAG) docker compose \
+          -f $(COMPOSE_DEPLOY_FILE) \
+          --env-file .env \
+          up -d
+      displayName: 'Pull imágenes y levantar servicios en producción'
+
+    - script: |
+        sleep 15
+        docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+      displayName: 'Verificación de contenedores activos'
+
+    - script: |
+        docker image prune -f
+      displayName: 'Limpiar imágenes colgantes'
+      condition: always()

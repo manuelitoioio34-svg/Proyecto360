@@ -1,0 +1,35 @@
+{
+  "name": "micro-pagespeed",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "dev:4g": "cross-env NODE_OPTIONS=--max-old-space-size=4096 tsx watch src/index.ts",
+    "dev:6g": "cross-env NODE_OPTIONS=--max-old-space-size=6144 tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "axios": "^1.11.0",
+    "chrome-launcher": "^1.2.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "execa": "^9.6.0",
+    "express": "^4.21.2",
+    "lighthouse": "^12.8.2",
+    "morgan": "^1.10.1",
+    "node-cache": "^5.1.2",
+    "pino": "^8.21.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/morgan": "^1.9.10",
+    "@types/node": "^24.3.0",
+    "pino-pretty": "^13.1.1",
+    "tsx": "^4.20.4",
+    "typescript": "^5.9.2",
+    "cross-env": "^7.0.3"
+  }
+}

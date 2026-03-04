@@ -1,0 +1,1064 @@
+/* Tailwind v4 runtime (global, NO modules) */
+@import "tailwindcss";
+
+/* Force class-based dark mode (Tailwind v4 default is media-query based).
+   This makes dark: variants respond to the .dark class on <html>,
+   which useDarkMode.ts toggles via localStorage. */
+@variant dark (&:where(.dark, .dark *));
+
+/* Design tokens — fuente de verdad de variables CSS Choucair */
+@import "./styles/design-tokens.css";
+
+/* Mantén tus estilos globales tal cual */
+@import "./styles/formulario.tw.css";
+@import "./styles/historico.tw.css";
+@import "./styles/diagnostico.tw.css";
+@import "./styles/action-plan-panel.tw.css";
+@import "./styles/navbar.tw.css";
+@import "./styles/pdf-scope.css";
+
+
+@layer base {
+  html, body, #root { 
+    height: 100%; 
+    width: 100%; 
+    overflow-x: hidden; 
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Escala global normalizada */
+  html { font-size: 14px; }
+  @media (min-width: 1280px) { html { font-size: 15px; } }
+  @media (max-width: 480px) { html { font-size: 16px; } }
+
+  /* Pantalla completa: sin padding lateral global. Compensar navbar fijo */
+  body {
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Asegurar que no haya limitaciones de ancho */
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+  
+  /* Forzar ancho completo para layouts principales */
+  main, .main, [role="main"] {
+    width: 100% !important;
+    max-width: none !important;
+  }
+}
+
+/* ── CSS variable para el aro de fondo del gauge (FlipCard SVG) ──
+   Driven by html.dark class — no depende del estado JS — siempre sincronizado */
+:root {
+  --gauge-track: #f3f4f6;
+}
+html.dark {
+  --gauge-track: #444444;
+}
+
+/* ── Fondo del body en light mode: gris suave (match del wrapper) ──
+   Evita el flash blanco antes de que React monte */
+body {
+  background-color: #f0f0f0 !important;
+}
+
+/* Interactivos: transición y cursor, sin imponer estilos visuales agresivos */
+button, [role="button"], .btn, input[type="submit"], input[type="button"] {
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+/* Hover global (opt-in a través de .btn o [data-variant]) para no afectar componentes específicos */
+.btn:hover:not(:disabled),
+button.btn:hover:not(:disabled),
+button[data-variant]:hover:not(:disabled),
+[role="button"][data-variant]:hover:not(:disabled) {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+  color: #1d4ed8 !important;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.18) !important;
+}
+
+/* Remover decoraciones de texto subrayado en elementos que parecen botones */
+button, [role="button"], .btn {
+  text-decoration: none !important;
+  border-bottom: none !important;
+}
+
+/* Estilos específicos para tabs activos (mantener) */
+.tab-button.active, [data-state="active"] {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+  color: white !important;
+}
+
+.tab-button.active:hover, [data-state="active"]:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%) !important;
+  color: white !important;
+}
+
+/* Asegurar que todos los elementos interactivos tengan cursor pointer */
+a, button, input[type="submit"], input[type="button"], input[type="reset"], 
+select, [role="button"], [role="tab"], [role="menuitem"], [role="option"],
+.clickable, .interactive, .btn, [onclick], [data-toggle], [data-dismiss] {
+  cursor: pointer !important;
+}
+
+/* Quitar subrayados de enlaces que parecen botones */
+a.btn, a[role="button"], .tab-button a {
+  text-decoration: none !important;
+  border-bottom: none !important;
+}
+
+/* ── Tipografía corporativa ──────────────────────────────────────────────────
+   Gris 900 (#383838) → títulos  |  Gris 700 (#4E4E4E) → cuerpo / descripciones
+   Las clases Tailwind text-* específicas siguen teniendo prioridad cuando se
+   necesita sobreescribir (ej. text-white en fondos oscuros).
+─────────────────────────────────────────────────────────────────────────────*/
+@layer base {
+  h1, h2, h3, h4, h5, h6 {
+    color: #383838;
+  }
+  body {
+    color: #4E4E4E;
+  }
+}
+
+/* ── Histórico General: título visible en dark mode (fuera de card) ── */
+[data-page="diagnostic-history"] h1 {
+  color: #383838;
+}
+html.dark [data-page="diagnostic-history"] h1 {
+  color: #f0f0f0;
+}
+html.dark [data-page="diagnostic-history"] .text-gray-500 {
+  color: #a0a0a0 !important;
+}
+
+/* ── Dark mode ───────────────────────────────────────────────────────────────
+   Solo cambia el fondo de la página (body / #root).
+   Tarjetas, componentes y colores de texto quedan intactos.
+   Activado con la clase `dark` en <html> (gestionado por useDarkMode.ts).
+─────────────────────────────────────────────────────────────────────────────*/
+html.dark body,
+html.dark #root {
+  background-color: #0a1220 !important;
+}
+
+/* Los wrappers de página usan min-h-screen — son los que tapan el body.
+   Las tarjetas nunca usan min-h-screen, por lo que quedan intactas. */
+html.dark .min-h-screen {
+  background: #0a1220 !important;
+}
+
+/* Vista de las 6 dimensiones (data-page="dashboard-general"):
+   los títulos que van directamente sobre el fondo oscuro se pasan a blanco.
+   Los textos DENTRO de tarjetas (bg-white/bg-card) NO se afectan porque
+   los elementos con background propio bloquean esta herencia. */
+html.dark [data-page="dashboard-general"] h2,
+html.dark [data-page="dashboard-general"] .text-gray-900,
+html.dark [data-page="dashboard-general"] .text-gray-800,
+html.dark [data-page="dashboard-general"] .text-gray-500,
+html.dark [data-page="dashboard-general"] .text-gray-400 {
+  color: #e0e0e0 !important;
+}
+/* Excepción: textos dentro de tarjetas blancas se quedan como están */
+html.dark [data-page="dashboard-general"] .bg-white .text-gray-900,
+html.dark [data-page="dashboard-general"] .bg-white .text-gray-800,
+html.dark [data-page="dashboard-general"] .bg-white .text-gray-500,
+html.dark [data-page="dashboard-general"] .bg-white .text-gray-400,
+html.dark [data-page="dashboard-general"] [class*="bg-white"] h2 {
+  color: revert !important;
+}
+
+/* Tarjetas (shadcn Card) en dark mode → fondo blanco para que sean legibles */
+html.dark [data-slot="card"] {
+  background-color: #ffffff !important;
+  color: #162238 !important;
+  border-color: #e0e0e0 !important;
+}
+html.dark [data-slot="card"] h1,
+html.dark [data-slot="card"] h2,
+html.dark [data-slot="card"] h3,
+html.dark [data-slot="card"] h4,
+html.dark [data-slot="card"] .text-slate-900,
+html.dark [data-slot="card"] .text-slate-700,
+html.dark [data-slot="card"] .text-slate-600 {
+  color: #162238 !important;
+}
+
+/* .back-link en dark mode → borde y texto blancos para que sea visible */
+html.dark .back-link {
+  color: #ffffff !important;
+  border-color: #ffffff !important;
+  background: transparent !important;
+}
+html.dark .back-link:hover {
+  background: rgba(255,255,255,0.15) !important;
+  color: #ffffff !important;
+}
+
+/* ── Dark mode: vista 6 dimensiones (dashboard-general) ────────────────────
+   Reglas específicas por tipo de tarjeta para un look cohesivo.
+─────────────────────────────────────────────────────────────────────────── */
+html.dark [data-page="dashboard-general"] {
+  background: #0a1220 !important;
+}
+
+/* Títulos sueltos fuera de tarjetas (ej. "Métricas por Dimensión") */
+html.dark [data-page="dashboard-general"] > * > h2,
+html.dark [data-page="dashboard-general"] > * > * > h2 {
+  color: #f0f0f0 !important;
+}
+
+/* ── Tarjetas oscuras: URL analizada, Action Plan, etc. ── */
+html.dark [data-page="dashboard-general"] [data-slot="card"] {
+  background-color: #13203a !important;
+  border-color: #1e2d45 !important;
+  color: #e0e0e0 !important;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.4) !important;
+}
+html.dark [data-page="dashboard-general"] [data-slot="card"] h1,
+html.dark [data-page="dashboard-general"] [data-slot="card"] h2,
+html.dark [data-page="dashboard-general"] [data-slot="card"] h3,
+html.dark [data-page="dashboard-general"] [data-slot="card"] h4 {
+  color: #f0f0f0 !important;
+}
+html.dark [data-page="dashboard-general"] [data-slot="card"] .text-gray-900,
+html.dark [data-page="dashboard-general"] [data-slot="card"] .text-gray-500,
+html.dark [data-page="dashboard-general"] [data-slot="card"] .text-gray-400 {
+  color: #909090 !important;
+}
+
+/* ── Tarjetas OSCURAS: FlipCards (métricas) ── */
+html.dark [data-page="dashboard-general"] [data-slot="card"][data-metric-card] {
+  background-color: #0a1220 !important;
+  background-image: none !important;
+  border-color: #1e2d45 !important;
+  color: #e0e0e0 !important;
+  padding-top: 0 !important;
+}
+/* Título y descripción de la métrica */
+html.dark [data-page="dashboard-general"] [data-slot="card"][data-metric-card] h3 { color: #ffffff !important; }
+html.dark [data-page="dashboard-general"] [data-slot="card"][data-metric-card] .text-gray-900 { color: #ffffff !important; }
+html.dark [data-page="dashboard-general"] [data-slot="card"][data-metric-card] .text-gray-500 { color: #a0a0a0 !important; }
+html.dark [data-page="dashboard-general"] [data-slot="card"][data-metric-card] .text-gray-400 { color: #909090 !important; }
+/* Separador footer */
+html.dark [data-page="dashboard-general"] [data-slot="card"][data-metric-card] [class*="border-t"] { border-color: #1e2d45 !important; }
+/* Badge score (bg-emerald-50 etc) → tintes en dark */
+html.dark [data-page="dashboard-general"] [data-slot="card"][data-metric-card] .bg-emerald-50 { background-color: rgba(16,185,129,0.15) !important; }
+html.dark [data-page="dashboard-general"] [data-slot="card"][data-metric-card] .bg-blue-50  { background-color: rgba(59,130,246,0.15) !important; }
+html.dark [data-page="dashboard-general"] [data-slot="card"][data-metric-card] .bg-amber-50 { background-color: rgba(245,158,11,0.15) !important; }
+html.dark [data-page="dashboard-general"] [data-slot="card"][data-metric-card] .bg-red-50   { background-color: rgba(239,68,68,0.15) !important; }
+
+/* ── Tarjeta OSCURA: progress score card (Análisis en progreso) ──
+   El Card tiene bg-gradient-to-br from-blue-50 to-indigo-50 pero background-image
+   sobreescribe el background-color forzado por el selector genérico de cards.
+   Limpiamos la imagen y forzamos fondo oscuro aquí. */
+html.dark [data-page="dashboard-general"] [data-slot="card"][data-pdf-avoid]:not([data-score-hero]):not([data-metric-card]) {
+  background-image: none !important;
+  background-color: #13203a !important;
+  border-color: #354060 !important;
+}
+html.dark [data-page="dashboard-general"] [data-slot="card"][data-pdf-avoid]:not([data-score-hero]):not([data-metric-card]) h1 {
+  color: #f0f0f0 !important;
+}
+html.dark [data-page="dashboard-general"] [data-slot="card"][data-pdf-avoid]:not([data-score-hero]):not([data-metric-card]) .text-gray-600,
+html.dark [data-page="dashboard-general"] [data-slot="card"][data-pdf-avoid]:not([data-score-hero]):not([data-metric-card]) .text-gray-900 {
+  color: #d0d0d0 !important;
+}
+
+/* ── Tarjeta OSCURA: ScoreHero (Puntuación General) ── */
+html.dark [data-page="dashboard-general"] [data-slot="card"][data-score-hero] {
+  background-color: #0a1220 !important;
+  background-image: none !important;   /* cancela el from-white to-gray-50 */
+  border-color: #1e2d45 !important;
+  color: #e0e0e0 !important;
+  padding-top: 0 !important;           /* elimina el py-6 que muestra blanco encima del header */
+}
+/* Header: #0075C9 sólido, sin espacio arriba */
+html.dark [data-page="dashboard-general"] [data-slot="card"][data-score-hero] [data-slot="card-header"] {
+  background: #0075C9 !important;
+  background-image: none !important;
+  border-color: #005fa3 !important;
+  margin-top: 0 !important;
+  padding-top: 1rem !important;
+  padding-bottom: 1rem !important;
+}
+html.dark [data-page="dashboard-general"] [data-slot="card"][data-score-hero] [data-slot="card-header"] *,
+html.dark [data-page="dashboard-general"] [data-slot="card"][data-score-hero] [data-slot="card-header"] h3 {
+  color: #ffffff !important;
+}
+/* Números de score y sublabel: blancos sobre fondo negro */
+html.dark [data-page="dashboard-general"] [data-slot="card"][data-score-hero] .text-gray-900 { color: #ffffff !important; }
+html.dark [data-page="dashboard-general"] [data-slot="card"][data-score-hero] .text-gray-700 { color: #e0e0e0 !important; }
+html.dark [data-page="dashboard-general"] [data-slot="card"][data-score-hero] .text-gray-500 { color: #b0b0b0 !important; }
+/* h3 "Estado del sitio" */
+html.dark [data-page="dashboard-general"] [data-slot="card"][data-score-hero] h3 { color: #f0f0f0 !important; }
+/* Sub-tarjetas Fortalezas / A mejorar — se quedan con sus colores originales */
+html.dark [data-page="dashboard-general"] [data-slot="card"][data-score-hero] .bg-green-50 {
+  background-color: #f0fdf4 !important;
+  background-image: none !important;
+}
+html.dark [data-page="dashboard-general"] [data-slot="card"][data-score-hero] .bg-orange-50 {
+  background-color: #fff7ed !important;
+  background-image: none !important;
+}
+
+/* ── Tarjetas de Insights: eliminar gap negro en el top ──
+   Se colorea el fondo del card con el mismo tinte que el header,
+   así la clase py-6 del Card no muestra negro arriba del header. */
+html.dark [data-page="dashboard-general"] [data-slot="card"][class*="border-green-200"] {
+  background-color: rgba(22, 163, 74, 0.10) !important;
+  border-color: rgba(22, 163, 74, 0.35) !important;
+}
+html.dark [data-page="dashboard-general"] [data-slot="card"][class*="border-blue-200"] {
+  background-color: rgba(59, 130, 246, 0.10) !important;
+  border-color: rgba(59, 130, 246, 0.35) !important;
+}
+
+/* ── Border radius: tarjetas más redondeadas (20 px) ── */
+[data-slot="card"] {
+  border-radius: 1.25rem !important;
+}
+
+/* ── Botones de navegación "Nuevo análisis" / "Volver a vista general" ──
+   nav-back-btn: borde y texto visibles siempre */
+.nav-back-btn {
+  border: 2px solid #383838 !important;
+  color: #383838 !important;
+}
+html.dark .nav-back-btn {
+  border: 2px solid #ffffff !important;
+  color: #ffffff !important;
+  background: transparent !important;
+}
+html.dark .nav-back-btn:hover {
+  background: rgba(255,255,255,0.12) !important;
+  color: #ffffff !important;
+}
+
+/* Hero del panel de bienvenida: asegurar que el h1 quede blanco en dark mode
+   a pesar de la regla @layer base h1 { color: #383838 } */
+html.dark .text-white {
+  color: #ffffff !important;
+}
+html.dark .text-gray-300 {
+  color: #d1d5db !important;
+}
+
+/* ── Insights (Lo que estás haciendo bien / Oportunidades): texto legible en dark ── */
+html.dark [data-page="dashboard-general"] [data-slot="card"][class*="border-green-200"] [data-slot="card-header"] {
+  background-color: rgba(22, 163, 74, 0.22) !important;
+  border-color: rgba(22, 163, 74, 0.40) !important;
+}
+html.dark [data-page="dashboard-general"] [data-slot="card"][class*="border-green-200"] .text-green-900,
+html.dark [data-page="dashboard-general"] [data-slot="card"][class*="border-green-200"] h3 {
+  color: #86efac !important;
+}
+html.dark [data-page="dashboard-general"] [data-slot="card"][class*="border-green-200"] span,
+html.dark [data-page="dashboard-general"] [data-slot="card"][class*="border-green-200"] li {
+  color: #bbf7d0 !important;
+}
+html.dark [data-page="dashboard-general"] [data-slot="card"][class*="border-green-200"] .text-green-600 {
+  color: #4ade80 !important;
+}
+html.dark [data-page="dashboard-general"] [data-slot="card"][class*="border-blue-200"] [data-slot="card-header"] {
+  background-color: rgba(59, 130, 246, 0.22) !important;
+  border-color: rgba(59, 130, 246, 0.40) !important;
+}
+html.dark [data-page="dashboard-general"] [data-slot="card"][class*="border-blue-200"] .text-blue-900,
+html.dark [data-page="dashboard-general"] [data-slot="card"][class*="border-blue-200"] h3 {
+  color: #93c5fd !important;
+}
+html.dark [data-page="dashboard-general"] [data-slot="card"][class*="border-blue-200"] span,
+html.dark [data-page="dashboard-general"] [data-slot="card"][class*="border-blue-200"] li {
+  color: #bfdbfe !important;
+}
+html.dark [data-page="dashboard-general"] [data-slot="card"][class*="border-blue-200"] .text-blue-600 {
+  color: #60a5fa !important;
+}
+
+/* ── ActionPlan card (dashboard-general): header oscuro en dark ── */
+html.dark [data-page="dashboard-general"] [data-slot="card"][data-action-plan] [data-slot="card-header"] {
+  background-color: #162238 !important;
+  border-color: #1e2d45 !important;
+}
+html.dark [data-page="dashboard-general"] [data-slot="card"][data-action-plan] h3,
+html.dark [data-page="dashboard-general"] [data-slot="card"][data-action-plan] h4 {
+  color: #f0f0f0 !important;
+}
+html.dark [data-page="dashboard-general"] [data-slot="card"][data-action-plan] .text-gray-900 { color: #e0e0e0 !important; }
+html.dark [data-page="dashboard-general"] [data-slot="card"][data-action-plan] .text-gray-600 { color: #a0a0a0 !important; }
+html.dark [data-page="dashboard-general"] [data-slot="card"][data-action-plan] .text-gray-500 { color: #909090 !important; }
+html.dark [data-page="dashboard-general"] [data-slot="card"][data-action-plan] .bg-red-100 { background-color: rgba(239,68,68,0.18) !important; }
+html.dark [data-page="dashboard-general"] [data-slot="card"][data-action-plan] .bg-amber-100 { background-color: rgba(245,158,11,0.18) !important; }
+html.dark [data-page="dashboard-general"] [data-slot="card"][data-action-plan] .bg-gray-100 { background-color: #1e2d45 !important; }
+html.dark [data-page="dashboard-general"] [data-slot="card"][data-action-plan] .text-red-800 { color: #fca5a5 !important; }
+
+/* Admin panel — modo claro: forzar colores visibles */
+[data-page="admin-panel"] h1 {
+  color: #0d1626 !important;
+}
+[data-page="admin-panel"] > div > div > p,
+[data-page="admin-panel"] > div > p {
+  color: #4b5563 !important;
+}
+
+html.dark [data-page="admin-panel"] {
+  background-color: #0d1626 !important;
+  min-height: 100vh;
+  color: #e5e7eb !important;
+}
+html.dark [data-page="admin-panel"] h1 {
+  color: #f1f5f9 !important;
+}
+html.dark [data-page="admin-panel"] > div > div > p,
+html.dark [data-page="admin-panel"] > div > p {
+  color: #cbd5e1 !important;
+}
+
+html.dark [data-page="admin-panel"] h1,
+html.dark [data-page="admin-panel"] h2,
+html.dark [data-page="admin-panel"] h3,
+html.dark [data-page="admin-panel"] .text-slate-900,
+html.dark [data-page="admin-panel"] .text-slate-800,
+html.dark [data-page="admin-panel"] .text-slate-700,
+html.dark [data-page="admin-panel"] .text-slate-600,
+html.dark [data-page="admin-panel"] .text-slate-500 {
+  color: #e5e7eb !important;
+}
+
+html.dark [data-page="admin-panel"] [data-slot="card"] {
+  background-color: #13203a !important;
+  border-color: #1e2d45 !important;
+  color: #e5e7eb !important;
+}
+
+html.dark [data-page="admin-panel"] [data-slot="card"] [data-slot="card-header"] {
+  border-color: #1e2d45 !important;
+  background-color: #162238 !important;
+}
+
+html.dark [data-page="admin-panel"] [data-slot="card-title"] {
+  color: #f1f5f9 !important;
+}
+
+html.dark [data-page="admin-panel"] input,
+html.dark [data-page="admin-panel"] select,
+html.dark [data-page="admin-panel"] textarea {
+  background-color: #0d1626 !important;
+  border-color: #374151 !important;
+  color: #e5e7eb !important;
+}
+
+html.dark [data-page="admin-panel"] table thead {
+  background-color: #162440 !important;
+}
+
+html.dark [data-page="admin-panel"] table tr,
+html.dark [data-page="admin-panel"] table td,
+html.dark [data-page="admin-panel"] table th {
+  border-color: #374151 !important;
+  color: #e5e7eb !important;
+}
+
+html.dark [data-page="admin-panel"] table tbody tr:hover {
+  background-color: #162440 !important;
+}
+
+html.dark [data-page="admin-panel"] .bg-slate-50,
+html.dark [data-page="admin-panel"] .bg-slate-100,
+html.dark [data-page="admin-panel"] .bg-white {
+  background-color: #162440 !important;
+  color: #e5e7eb !important;
+}
+
+html.dark [data-page="admin-panel"] .bg-yellow-50 {
+  background-color: rgba(234,179,8,0.12) !important;
+}
+
+/* Badges coloreados en el panel admin */
+html.dark [data-page="admin-panel"] .bg-emerald-100 { background-color: rgba(16,185,129,0.20) !important; }
+html.dark [data-page="admin-panel"] .text-emerald-700 { color: #6ee7b7 !important; }
+html.dark [data-page="admin-panel"] .bg-red-100 { background-color: rgba(239,68,68,0.20) !important; }
+html.dark [data-page="admin-panel"] .text-red-700 { color: #fca5a5 !important; }
+html.dark [data-page="admin-panel"] .text-red-600 { color: #fca5a5 !important; }
+html.dark [data-page="admin-panel"] .bg-purple-100 { background-color: rgba(168,85,247,0.20) !important; }
+html.dark [data-page="admin-panel"] .text-purple-700 { color: #d8b4fe !important; }
+html.dark [data-page="admin-panel"] .bg-blue-100 { background-color: rgba(59,130,246,0.20) !important; }
+html.dark [data-page="admin-panel"] .text-blue-700 { color: #93c5fd !important; }
+html.dark [data-page="admin-panel"] .bg-amber-100,
+html.dark [data-page="admin-panel"] .bg-yellow-100 { background-color: rgba(245,158,11,0.20) !important; }
+html.dark [data-page="admin-panel"] .text-amber-700,
+html.dark [data-page="admin-panel"] .text-yellow-700 { color: #fcd34d !important; }
+html.dark [data-page="admin-panel"] .bg-gray-100 { background-color: #374151 !important; }
+html.dark [data-page="admin-panel"] .text-gray-700 { color: #e5e7eb !important; }
+html.dark [data-page="admin-panel"] .text-gray-600 { color: #d1d5db !important; }
+
+/* Botones outline en panel admin */
+html.dark [data-page="admin-panel"] button[class*="outline"],
+html.dark [data-page="admin-panel"] [data-variant="outline"] {
+  border-color: #4b5563 !important;
+  color: #e5e7eb !important;
+  background-color: transparent !important;
+}
+html.dark [data-page="admin-panel"] button[class*="outline"]:hover,
+html.dark [data-page="admin-panel"] [data-variant="outline"]:hover {
+  background-color: #162440 !important;
+}
+html.dark [data-page="dashboard-general"] [data-slot="card"][data-action-plan] .text-amber-800 { color: #fcd34d !important; }
+html.dark [data-page="dashboard-general"] [data-slot="card"][data-action-plan] .text-gray-800 { color: #d0d0d0 !important; }
+
+/* ── Diagnóstico Integral (full-check): dark mode cohesivo ──────────────────
+   data-page="full-check" se coloca en el div raíz de DashboardCalidadWeb.
+─────────────────────────────────────────────────────────────────────────── */
+html.dark [data-page="full-check"] {
+  background: #0a1220 !important;
+}
+html.dark [data-page="full-check"] [data-slot="card"] {
+  background-color: #13203a !important;
+  border-color: #1e2d45 !important;
+  color: #e0e0e0 !important;
+}
+html.dark [data-page="full-check"] [data-slot="card-header"] {
+  background: #162238 !important;
+  border-color: #1e2d45 !important;
+}
+html.dark [data-page="full-check"] [data-slot="card"] h3,
+html.dark [data-page="full-check"] [data-slot="card"] h4 { color: #f0f0f0 !important; }
+html.dark [data-page="full-check"] .text-gray-900 { color: #f0f0f0 !important; }
+html.dark [data-page="full-check"] .text-gray-800,
+html.dark [data-page="full-check"] .text-gray-700 { color: #d0d0d0 !important; }
+html.dark [data-page="full-check"] .text-gray-600 { color: #b0b0b0 !important; }
+html.dark [data-page="full-check"] .text-gray-500 { color: #909090 !important; }
+html.dark [data-page="full-check"] .text-slate-900,
+html.dark [data-page="full-check"] .text-slate-600 { color: #d0d0d0 !important; }
+/* Cajas de info coloreadas */
+html.dark [data-page="full-check"] .bg-blue-50   { background-color: rgba(59,130,246,0.12) !important; }
+html.dark [data-page="full-check"] .bg-green-50  { background-color: rgba(34,197,94,0.10) !important; }
+html.dark [data-page="full-check"] .bg-gray-50   { background-color: #152238 !important; }
+html.dark [data-page="full-check"] .bg-amber-50  { background-color: rgba(245,158,11,0.12) !important; }
+html.dark [data-page="full-check"] .bg-red-50    { background-color: rgba(239,68,68,0.12) !important; }
+/* Bordes coloreados */
+html.dark [data-page="full-check"] .border-blue-200  { border-color: rgba(59,130,246,0.35) !important; }
+html.dark [data-page="full-check"] .border-green-200 { border-color: rgba(34,197,94,0.35) !important; }
+html.dark [data-page="full-check"] .border-red-200   { border-color: rgba(239,68,68,0.35) !important; }
+/* Texto en cajas de info */
+html.dark [data-page="full-check"] .text-blue-900 { color: #93c5fd !important; }
+html.dark [data-page="full-check"] .text-blue-800 { color: #bfdbfe !important; }
+html.dark [data-page="full-check"] .text-blue-700,
+html.dark [data-page="full-check"] .text-blue-600 { color: #60a5fa !important; }
+html.dark [data-page="full-check"] .text-green-900 { color: #86efac !important; }
+html.dark [data-page="full-check"] .text-green-800 { color: #bbf7d0 !important; }
+html.dark [data-page="full-check"] .text-green-600 { color: #4ade80 !important; }
+html.dark [data-page="full-check"] .text-red-800,
+html.dark [data-page="full-check"] .text-red-700  { color: #fca5a5 !important; }
+html.dark [data-page="full-check"] .text-red-600  { color: #f87171 !important; }
+html.dark [data-page="full-check"] .text-amber-800 { color: #fcd34d !important; }
+/* Accordion / DetailSection items */
+html.dark [data-page="full-check"] .bg-white { background-color: #152238 !important; }
+html.dark [data-page="full-check"] .border-2   { border-color: #1e2d45 !important; }
+/* Badges */
+html.dark [data-page="full-check"] .bg-red-100   { background-color: rgba(239,68,68,0.18) !important; }
+html.dark [data-page="full-check"] .bg-amber-100 { background-color: rgba(245,158,11,0.18) !important; }
+html.dark [data-page="full-check"] .bg-gray-100  { background-color: #1e2d45 !important; color: #d0d0d0 !important; }
+/* Tabs */
+html.dark [data-page="full-check"] [role="tablist"]        { background-color: #152238 !important; }
+html.dark [data-page="full-check"] [data-state="active"]  { background-color: #13203a !important; color: #f0f0f0 !important; }
+/* Divisor */
+html.dark [data-page="full-check"] .via-slate-300 { --tw-gradient-stops: transparent, #444, transparent !important; }
+/* Título principal */
+html.dark [data-page="full-check"] h1 { color: #f0f0f0 !important; }
+
+/* ── Histórico General: dark mode completo ──────────────────────────────────
+   data-page="diagnostic-history" en el div raíz de DiagnosticHistoryPage
+─────────────────────────────────────────────────────────────────────────── */
+
+/* Fondo de página */
+html.dark [data-page="diagnostic-history"] {
+  color: #e5e7eb !important;
+}
+
+/* Botón Volver */
+html.dark [data-page="diagnostic-history"] .text-gray-500 { color: #9ca3af !important; }
+html.dark [data-page="diagnostic-history"] .hover\:text-gray-800:hover { color: #f3f4f6 !important; }
+
+/* Cards (filtros + tabla) */
+html.dark [data-page="diagnostic-history"] [data-slot="card"] {
+  background-color: #13203a !important;
+  border-color: #1e2d45 !important;
+  color: #e5e7eb !important;
+}
+
+/* Inputs y selects de filtro */
+html.dark [data-page="diagnostic-history"] input[type="text"],
+html.dark [data-page="diagnostic-history"] input[type="date"] {
+  background-color: #0d1626 !important;
+  border-color: #374151 !important;
+  color: #e5e7eb !important;
+}
+html.dark [data-page="diagnostic-history"] input::placeholder { color: #6b7280 !important; }
+html.dark [data-page="diagnostic-history"] label { color: #9ca3af !important; }
+
+/* Tabla */
+html.dark [data-page="diagnostic-history"] table thead tr {
+  background-color: #0d1626 !important;
+}
+html.dark [data-page="diagnostic-history"] table thead th {
+  color: #9ca3af !important;
+  border-color: #374151 !important;
+}
+html.dark [data-page="diagnostic-history"] table tbody tr {
+  border-color: #162440 !important;
+}
+html.dark [data-page="diagnostic-history"] table tbody tr:hover {
+  background-color: #162440 !important;
+}
+html.dark [data-page="diagnostic-history"] table td {
+  color: #d1d5db !important;
+}
+/* URL links */
+html.dark [data-page="diagnostic-history"] a.text-indigo-600 {
+  color: #818cf8 !important;
+}
+/* Badge caché */
+html.dark [data-page="diagnostic-history"] .bg-gray-100 {
+  background-color: #374151 !important;
+  color: #9ca3af !important;
+}
+/* Score badges */
+html.dark [data-page="diagnostic-history"] .bg-green-50  { background-color: rgba(16,185,129,0.18) !important; }
+html.dark [data-page="diagnostic-history"] .text-green-700 { color: #6ee7b7 !important; }
+html.dark [data-page="diagnostic-history"] .bg-amber-50  { background-color: rgba(245,158,11,0.18) !important; }
+html.dark [data-page="diagnostic-history"] .text-amber-700 { color: #fcd34d !important; }
+html.dark [data-page="diagnostic-history"] .bg-red-50    { background-color: rgba(239,68,68,0.18) !important; }
+html.dark [data-page="diagnostic-history"] .text-red-700 { color: #fca5a5 !important; }
+/* Scores individuales coloreados */
+html.dark [data-page="diagnostic-history"] .text-green-600 { color: #4ade80 !important; }
+html.dark [data-page="diagnostic-history"] .text-amber-600 { color: #fbbf24 !important; }
+html.dark [data-page="diagnostic-history"] .text-red-600   { color: #f87171 !important; }
+html.dark [data-page="diagnostic-history"] .text-gray-300  { color: #6b7280 !important; }
+html.dark [data-page="diagnostic-history"] .text-gray-400  { color: #9ca3af !important; }
+html.dark [data-page="diagnostic-history"] .text-gray-600  { color: #d1d5db !important; }
+/* Botón papelera hover */
+html.dark [data-page="diagnostic-history"] .text-gray-400 { color: #6b7280 !important; }
+html.dark [data-page="diagnostic-history"] .hover\:text-red-500:hover { color: #f87171 !important; }
+html.dark [data-page="diagnostic-history"] .hover\:bg-red-50:hover { background-color: rgba(239,68,68,0.18) !important; }
+/* Botones Confirmar / Cancelar eliminar */
+html.dark [data-page="diagnostic-history"] .text-gray-500.hover\:bg-gray-100:hover { background-color: #374151 !important; }
+/* Paginación */
+html.dark [data-page="diagnostic-history"] .text-gray-600 { color: #9ca3af !important; }
+/* Botones outline (paginación, actualizar) */
+html.dark [data-page="diagnostic-history"] button[class*="outline"],
+html.dark [data-page="diagnostic-history"] [data-variant="outline"] {
+  border-color: #374151 !important;
+  color: #e5e7eb !important;
+  background-color: transparent !important;
+}
+html.dark [data-page="diagnostic-history"] button[class*="outline"]:hover:not(:disabled),
+html.dark [data-page="diagnostic-history"] [data-variant="outline"]:hover:not(:disabled) {
+  background-color: #162440 !important;
+}
+/* Estado vacío */
+html.dark [data-page="diagnostic-history"] .text-gray-400 { color: #6b7280 !important; }
+/* Error */
+html.dark [data-page="diagnostic-history"] .bg-red-50.border-red-200 {
+  background-color: rgba(239,68,68,0.12) !important;
+  border-color: rgba(239,68,68,0.35) !important;
+}
+
+/* ── Performance & Seguridad (DiagnosticoView): dark mode ───────────────────
+   data-page="diagnostico-view" en el Card raíz de DiagnosticoView
+─────────────────────────────────────────────────────────────────────────── */
+
+/* Card raíz: fondo oscuro */
+html.dark [data-slot="card"][data-page="diagnostico-view"] {
+  background-color: #0d1626 !important;
+  border-color: #1e2d45 !important;
+  color: #e5e7eb !important;
+}
+
+/* Título "Diagnostico de: URL" */
+html.dark [data-slot="card"][data-page="diagnostico-view"] .diagnostico-title {
+  color: #f0f0f0 !important;
+}
+html.dark [data-slot="card"][data-page="diagnostico-view"] .diagnostico-title .url {
+  color: #93c5fd !important;
+}
+
+/* Subtítulos y textos generales */
+html.dark [data-slot="card"][data-page="diagnostico-view"] h2,
+html.dark [data-slot="card"][data-page="diagnostico-view"] h3,
+html.dark [data-slot="card"][data-page="diagnostico-view"] h4 { color: #f0f0f0 !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] p  { color: #d1d5db !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] .text-gray-900,
+html.dark [data-slot="card"][data-page="diagnostico-view"] .text-slate-900 { color: #f0f0f0 !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] .text-gray-800,
+html.dark [data-slot="card"][data-page="diagnostico-view"] .text-slate-800 { color: #e5e7eb !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] .text-gray-700,
+html.dark [data-slot="card"][data-page="diagnostico-view"] .text-slate-700 { color: #d1d5db !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] .text-gray-600,
+html.dark [data-slot="card"][data-page="diagnostico-view"] .text-slate-600 { color: #b0b0b0 !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] .text-gray-500,
+html.dark [data-slot="card"][data-page="diagnostico-view"] .text-slate-500 { color: #9ca3af !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] .text-gray-400 { color: #6b7280 !important; }
+
+/* Tabs (Performance / Resumen / Seguridad) */
+html.dark [data-slot="card"][data-page="diagnostico-view"] [role="tablist"] {
+  background-color: #152238 !important;
+  border-color: #1e2d45 !important;
+}
+html.dark [data-slot="card"][data-page="diagnostico-view"] [role="tab"]:not([data-state="active"]) {
+  color: #9ca3af !important;
+  background: transparent !important;
+}
+html.dark [data-slot="card"][data-page="diagnostico-view"] [role="tab"]:not([data-state="active"]):hover {
+  color: #e5e7eb !important;
+}
+
+/* Tabs de estrategia (Móvil/Ordenador) — fondo específico */
+html.dark [data-slot="card"][data-page="diagnostico-view"] .bg-\[\\#e9eefb\] {
+  background-color: #162440 !important;
+}
+
+/* Botones outline internos */
+html.dark [data-slot="card"][data-page="diagnostico-view"] button.bg-white,
+html.dark [data-slot="card"][data-page="diagnostico-view"] .bg-white {
+  background-color: #162440 !important;
+  border-color: #374151 !important;
+  color: #e5e7eb !important;
+}
+
+/* Cards internas (métricas, breakdown, etc.) */
+html.dark [data-slot="card"][data-page="diagnostico-view"] [data-slot="card"] {
+  background-color: #13203a !important;
+  border-color: #1e2d45 !important;
+  color: #e5e7eb !important;
+}
+html.dark [data-slot="card"][data-page="diagnostico-view"] [data-slot="card"] [data-slot="card-header"] {
+  background-color: #162238 !important;
+  border-color: #1e2d45 !important;
+}
+
+/* Cajas coloreadas de info */
+html.dark [data-slot="card"][data-page="diagnostico-view"] .bg-blue-50   { background-color: rgba(59,130,246,0.12)  !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] .bg-green-50  { background-color: rgba(16,185,129,0.10)  !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] .bg-amber-50  { background-color: rgba(245,158,11,0.12)  !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] .bg-red-50    { background-color: rgba(239,68,68,0.12)   !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] .bg-gray-50   { background-color: #162440 !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] .bg-gray-100  { background-color: #374151 !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] .bg-red-100   { background-color: rgba(239,68,68,0.18)   !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] .bg-amber-100 { background-color: rgba(245,158,11,0.18)  !important; }
+
+/* Bordes coloreados */
+html.dark [data-slot="card"][data-page="diagnostico-view"] .border-blue-200  { border-color: rgba(59,130,246,0.35) !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] .border-green-200 { border-color: rgba(16,185,129,0.35) !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] .border-red-200   { border-color: rgba(239,68,68,0.35)  !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] .border-amber-200 { border-color: rgba(245,158,11,0.35) !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] .border-gray-200  { border-color: #1e2d45 !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] .divide-gray-100 > * + * { border-color: #1e2d45 !important; }
+
+/* Textos en cajas coloreadas */
+html.dark [data-slot="card"][data-page="diagnostico-view"] .text-blue-900 { color: #93c5fd !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] .text-blue-800 { color: #bfdbfe !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] .text-blue-700,
+html.dark [data-slot="card"][data-page="diagnostico-view"] .text-blue-600 { color: #60a5fa !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] .text-green-900 { color: #86efac !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] .text-green-800 { color: #bbf7d0 !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] .text-green-700 { color: #6ee7b7 !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] .text-green-600 { color: #4ade80 !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] .text-red-800,
+html.dark [data-slot="card"][data-page="diagnostico-view"] .text-red-700  { color: #fca5a5 !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] .text-red-600  { color: #f87171 !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] .text-amber-800 { color: #fcd34d !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] .text-amber-700 { color: #fbbf24 !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] .text-amber-600 { color: #f59e0b !important; }
+
+/* Score numbers (grandes) */
+html.dark [data-slot="card"][data-page="diagnostico-view"] .text-4xl,
+html.dark [data-slot="card"][data-page="diagnostico-view"] .text-5xl,
+html.dark [data-slot="card"][data-page="diagnostico-view"] .text-3xl { color: inherit !important; }
+
+/* Separadores */
+html.dark [data-slot="card"][data-page="diagnostico-view"] [class*="border-t"] { border-color: #1e2d45 !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] hr { border-color: #1e2d45 !important; }
+
+/* Accordion / secciones expandibles */
+html.dark [data-slot="card"][data-page="diagnostico-view"] [data-state="closed"],
+html.dark [data-slot="card"][data-page="diagnostico-view"] [data-state="open"] {
+  border-color: #1e2d45 !important;
+}
+
+/* AccessBanner (permisos) */
+html.dark [data-slot="card"][data-page="diagnostico-view"] .bg-amber-50.border-amber-200 {
+  background-color: rgba(245,158,11,0.12) !important;
+  border-color: rgba(245,158,11,0.35) !important;
+}
+
+/* Tabla de hallazgos / action plan */
+html.dark [data-slot="card"][data-page="diagnostico-view"] table thead tr { background-color: #162440 !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] table thead th { color: #9ca3af !important; border-color: #374151 !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] table tbody tr { border-color: #162440 !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] table tbody tr:hover { background-color: #162440 !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] table td { color: #d1d5db !important; }
+
+/* Radio/gauge track */
+html.dark [data-slot="card"][data-page="diagnostico-view"] .text-slate-400 { color: #6b7280 !important; }
+
+/* ── Dark mode extras: Performance breakdown cards + Security panel ──────────
+   All rules scoped under html.dark — light mode is NOT affected.
+─────────────────────────────────────────────────────────────────────────── */
+
+/* 1. Performance .item metric cards — softBg() returns inline rgba/hex so
+      we need !important to win over the inline style attribute */
+html.dark [data-slot="card"][data-page="diagnostico-view"] .item {
+  background: #1a2540 !important;
+  border-color: #2d3a54 !important;
+}
+
+/* SVG gauge numbers & labels — override hardcoded fill:#111 / fill:#111827 */
+html.dark [data-slot="card"][data-page="diagnostico-view"] svg text,
+html.dark [data-slot="card"][data-page="diagnostico-view"] svg tspan {
+  fill: #e8eeff !important;
+}
+/* Dim the neutral ring track so it doesn't glare on dark bg */
+html.dark [data-slot="card"][data-page="diagnostico-view"] .item svg circle:first-child {
+  stroke: rgba(232,238,255,0.18) !important;
+}
+
+/* 2. bg-slate-50 / bg-slate-100 (info tooltip box, inner panels, badges) */
+html.dark [data-slot="card"][data-page="diagnostico-view"] .bg-slate-50 {
+  background-color: #162440 !important;
+}
+html.dark [data-slot="card"][data-page="diagnostico-view"] .bg-slate-100 {
+  background-color: #2d3748 !important;
+}
+
+/* 3. Gradient panel backgrounds: SecurityDiagnosticoPanel outer card,
+      CardHeader, loading skeletons, score wrapper, SectionDivider pill */
+html.dark [data-slot="card"][data-page="diagnostico-view"] [class~="from-white"],
+html.dark [data-slot="card"][data-page="diagnostico-view"] [class~="from-slate-50"],
+html.dark [data-slot="card"][data-page="diagnostico-view"] [class~="from-slate-100"] {
+  background-image: none !important;
+  background-color: #1c1c2e !important;
+}
+/* Also strip gradient from nested shadcn cards (already have bg set above) */
+html.dark [data-slot="card"][data-page="diagnostico-view"] [data-slot="card"] {
+  background-image: none !important;
+}
+html.dark [data-slot="card"][data-page="diagnostico-view"] [data-slot="card-header"] {
+  background-image: none !important;
+  background-color: #1e2130 !important;
+}
+
+/* 4. border-slate-200 / border-slate-300 (SecurityDiagnosticoPanel, grids) */
+html.dark [data-slot="card"][data-page="diagnostico-view"] .border-slate-200 {
+  border-color: #374151 !important;
+}
+html.dark [data-slot="card"][data-page="diagnostico-view"] .border-slate-300 {
+  border-color: #4b5563 !important;
+}
+
+/* 5. SectionDivider line: darken its via-slate-300 midstop */
+html.dark [data-slot="card"][data-page="diagnostico-view"] .via-slate-300 {
+  --tw-gradient-stops: var(--tw-gradient-from), #4b5563, var(--tw-gradient-to) !important;
+}
+
+/* 6. General rounded panel cards — SecuritySummaryPanel, header/cookie grid
+      items, "Acerca del análisis" box, plan de acción divs, etc. */
+html.dark [data-slot="card"][data-page="diagnostico-view"] .rounded-lg.border:not([data-slot="card"]) {
+  background-color: #162440 !important;
+  border-color: #374151 !important;
+}
+html.dark [data-slot="card"][data-page="diagnostico-view"] .hover\:bg-slate-50:hover {
+  background-color: #253144 !important;
+}
+
+/* 7. Code blocks (header values, cookie values, recommended values) */
+html.dark [data-slot="card"][data-page="diagnostico-view"] code {
+  background-color: #0f172a !important;
+  color: #93c5fd !important;
+  border-color: #374151;
+}
+/* pre blocks inside header expand detail (nginx/Apache/Express) already
+   have bg-black text-white — preserve them */
+html.dark [data-slot="card"][data-page="diagnostico-view"] pre {
+  background-color: #0a0a0a !important;
+}
+
+/* 8. Cookie security-flag badges (Secure, HttpOnly, SameSite) */
+html.dark [data-slot="card"][data-page="diagnostico-view"] .bg-emerald-50  { background-color: rgba(16,185,129,0.14)  !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] .text-emerald-700 { color: #6ee7b7 !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] .bg-sky-50      { background-color: rgba(14,165,233,0.14)   !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] .text-sky-700   { color: #7dd3fc !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] .bg-violet-50   { background-color: rgba(139,92,246,0.14)   !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] .text-violet-700 { color: #c4b5fd !important; }
+
+/* 9. Header "Crítico" badge (bg-red-50 text-red-700) -
+      already covered by bg-red-50 rule above but ensure text colour */
+html.dark [data-slot="card"][data-page="diagnostico-view"] .bg-red-50.text-red-700 {
+  color: #fca5a5 !important;
+}
+
+/* 10. ℹ️ info button (bg-blue-50 border-blue-200) inside SecuritySummaryPanel */
+html.dark [data-slot="card"][data-page="diagnostico-view"] .bg-blue-50.border-blue-200 {
+  background-color: rgba(59,130,246,0.15) !important;
+  border-color:     rgba(59,130,246,0.35) !important;
+}
+
+/* 11. Loading skeleton shimmer — dim it in dark */
+html.dark [data-slot="card"][data-page="diagnostico-view"] [class*="animate-pulse"] > * {
+  opacity: 0.6;
+}
+
+/* 12. "Detalles" link inside header grid */
+html.dark [data-slot="card"][data-page="diagnostico-view"] .text-slate-600.underline {
+  color: #93c5fd !important;
+}
+html.dark [data-slot="card"][data-page="diagnostico-view"] .hover\:text-slate-900:hover {
+  color: #e5e7eb !important;
+}
+
+/* ── ActionPlanPanel (.ap-*) dark mode ──────────────────────────────────────── */
+
+/* Individual audit cards */
+html.dark [data-slot="card"][data-page="diagnostico-view"] .ap-card {
+  background: #1c2333 !important;
+  border-color: #2d3748 !important;
+  color: #e5e7eb !important;
+}
+html.dark [data-slot="card"][data-page="diagnostico-view"] .ap-card:hover {
+  background: #212d42 !important;
+  border-color: #4b5563 !important;
+}
+
+/* Badge titles and detail text */
+html.dark [data-slot="card"][data-page="diagnostico-view"] .ap-title2 { color: #f0f0f0 !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] .ap-detail  { color: #d1d5db !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] .ap-subtle  { color: #9ca3af !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] .ap-muted   { color: #9ca3af !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] .ap-title   { color: #f0f0f0 !important; }
+
+/* Severity badges */
+html.dark [data-slot="card"][data-page="diagnostico-view"] .ap-badge.high {
+  background: linear-gradient(135deg, rgba(239,68,68,0.15), rgba(239,68,68,0.22)) !important;
+  border-color: rgba(239,68,68,0.4) !important;
+  color: #fca5a5 !important;
+}
+html.dark [data-slot="card"][data-page="diagnostico-view"] .ap-badge.mid {
+  background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(245,158,11,0.22)) !important;
+  border-color: rgba(245,158,11,0.4) !important;
+  color: #fcd34d !important;
+}
+html.dark [data-slot="card"][data-page="diagnostico-view"] .ap-badge.low {
+  background: linear-gradient(135deg, rgba(16,185,129,0.12), rgba(16,185,129,0.18)) !important;
+  border-color: rgba(16,185,129,0.35) !important;
+  color: #6ee7b7 !important;
+}
+html.dark [data-slot="card"][data-page="diagnostico-view"] .ap-badge.muted {
+  background: linear-gradient(135deg, #162440, #253244) !important;
+  border-color: #374151 !important;
+  color: #d1d5db !important;
+}
+
+/* Chip (count badge) */
+html.dark [data-slot="card"][data-page="diagnostico-view"] .ap-chip {
+  background: linear-gradient(135deg, #162440, #253244) !important;
+  border-color: #374151 !important;
+  color: #d1d5db !important;
+}
+
+/* Progress bar track */
+html.dark [data-slot="card"][data-page="diagnostico-view"] .ap-impact-wrap {
+  background: #162440 !important;
+}
+
+/* Accordion wrappers (Errores detectados / Mejoras) */
+html.dark [data-slot="card"][data-page="diagnostico-view"] .ap-acc {
+  background: #1a1f2e !important;
+  border-color: #2d3748 !important;
+}
+
+/* Accordion header — err variant (light pink → dark red tint) */
+html.dark [data-slot="card"][data-page="diagnostico-view"] .ap-acc.err .ap-acc-header {
+  background: linear-gradient(135deg, rgba(239,68,68,0.12), rgba(239,68,68,0.18)) !important;
+  border-left-color: #ef4444 !important;
+}
+html.dark [data-slot="card"][data-page="diagnostico-view"] .ap-acc.err:hover .ap-acc-header {
+  background: linear-gradient(135deg, rgba(239,68,68,0.18), rgba(239,68,68,0.25)) !important;
+}
+
+/* Accordion header — imp variant (light blue → dark blue tint) */
+html.dark [data-slot="card"][data-page="diagnostico-view"] .ap-acc.imp .ap-acc-header {
+  background: linear-gradient(135deg, rgba(59,130,246,0.12), rgba(59,130,246,0.18)) !important;
+  border-left-color: #3b82f6 !important;
+}
+html.dark [data-slot="card"][data-page="diagnostico-view"] .ap-acc.imp:hover .ap-acc-header {
+  background: linear-gradient(135deg, rgba(59,130,246,0.18), rgba(59,130,246,0.25)) !important;
+}
+
+/* Accordion header title text */
+html.dark [data-slot="card"][data-page="diagnostico-view"] .ap-acc-title { color: #f0f0f0 !important; }
+
+/* Accordion body background */
+html.dark [data-slot="card"][data-page="diagnostico-view"] .ap-acc-body {
+  background: linear-gradient(135deg, #1c2333, #1a2030) !important;
+  border-color: #2d3748 !important;
+}
+
+/* "Plan de acción sugerido" summary box */
+html.dark [data-slot="card"][data-page="diagnostico-view"] .ap-summary {
+  background: linear-gradient(135deg, #1c2333, #1a2030) !important;
+  border-color: #2d3748 !important;
+  color: #d1d5db !important;
+}
+html.dark [data-slot="card"][data-page="diagnostico-view"] .ap-summary-title { color: #f0f0f0 !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] .ap-dot { background: #4b5563 !important; }
+
+/* Sort / filter control pills */
+html.dark [data-slot="card"][data-page="diagnostico-view"] .ap-ctl {
+  background: #162440 !important;
+  border-color: #374151 !important;
+  color: #d1d5db !important;
+}
+html.dark [data-slot="card"][data-page="diagnostico-view"] .ap-ctl select { color: #d1d5db !important; }
+html.dark [data-slot="card"][data-page="diagnostico-view"] .ap-ctl:hover {
+  border-color: #4b5563 !important;
+}
+
+/* Action buttons (Mostrar / Ocultar / Copiar checklist / Detalles) */
+html.dark [data-slot="card"][data-page="diagnostico-view"] .ap-btn {
+  background: #162440 !important;
+  border-color: #374151 !important;
+  color: #d1d5db !important;
+}
+html.dark [data-slot="card"][data-page="diagnostico-view"] .ap-btn:hover {
+  background: #253244 !important;
+  border-color: #4b5563 !important;
+  color: #f0f0f0 !important;
+}
+
+/* ── SectionDivider info expansion box (diagViewHelpers + SecuritySectionDivider) ── */
+
+/* diagViewHelpers: bg-slate-50 border border-slate-200 → already covered by .bg-slate-50 rule above */
+
+/* SecuritySectionDivider: bg-gradient-to-r from-blue-50 to-slate-50 */
+html.dark [data-slot="card"][data-page="diagnostico-view"] [class~="from-blue-50"] {
+  background-image: none !important;
+  background-color: rgba(59,130,246,0.10) !important;
+}
+
+/* SectionDivider pill (perf): bg-slate-50 border border-slate-200 — already covered */
+/* Extra: ensure text inside SectionDivider pill is readable */
+html.dark [data-slot="card"][data-page="diagnostico-view"] .bg-slate-50 .text-slate-600,
+html.dark [data-slot="card"][data-page="diagnostico-view"] .bg-slate-50 .text-slate-700 {
+  color: #d1d5db !important;
+}
+
+/* ap-summary links rendered from markdown */
+html.dark [data-slot="card"][data-page="diagnostico-view"] .ap-summary a {
+  color: #93c5fd !important;
+  text-decoration: underline;
+}
