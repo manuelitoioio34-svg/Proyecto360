@@ -269,7 +269,7 @@ export async function requestPasswordReset(req: Request, res: Response) {
         <tr>
           <td style="background:linear-gradient(90deg,#0f5132,#000);padding:28px 30px;text-align:center;">
             ${logoTag}
-            <div style="font-size:11px;letter-spacing:3px;color:#d1d5db;font-weight:500;">BUSINESS CENTRIC TESTING</div>
+            <div style="font-size:11px;letter-spacing:3px;color:#d1d5db;font-weight:500;">Digital Assets Reliability</div>
           </td>
         </tr>
         <tr><td style="padding:34px 40px 10px 40px;">

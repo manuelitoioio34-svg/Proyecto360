@@ -131,7 +131,7 @@ export default function DiagnosticoView() {
   const id: string | null =
     (params as Record<string, string>)?.id || new URLSearchParams(location.search).get('id');
 
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, refresh } = useAuth();
   const perms = user?.permissions || [];
   const can = (p: string) => user?.role === 'admin' || perms.includes(p);
 
@@ -159,6 +159,9 @@ export default function DiagnosticoView() {
   const [cardInfoOpen, setCardInfoOpen] = useState<Record<string, boolean>>({});
 
   const contenedorReporteRef = useRef<HTMLDivElement | null>(null);
+
+  // Refresca permisos en cada visita para capturar cambios realizados por el admin
+  useEffect(() => { void refresh(); }, []);
 
   const emailContext: 'performance' | 'security' = isSecurity ? 'security' : 'performance';
 
@@ -391,7 +394,7 @@ export default function DiagnosticoView() {
 
   // =================== UI ===================
   return (
-    <Card data-page="diagnostico-view" className="bg-white dark:bg-[#0d1626] border border-slate-200 dark:border-[#1e2d45] shadow-sm rounded-xl">
+    <Card data-page="diagnostico-view" className="bg-white dark:bg-[#0d1626]">
       <CardContent>
         <div ref={contenedorReporteRef} className="w-full overflow-x-hidden">
 

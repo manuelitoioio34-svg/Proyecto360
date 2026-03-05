@@ -86,7 +86,7 @@ export default function RegisterPage() {
           <CardHeader className="text-center pb-6 pt-8 bg-gradient-to-r from-[#919191] to-black hover:from-[#6b6b6b] hover:to-black text-white rounded-t-2xl">
             <div className="mx-auto mb-4 flex flex-col items-center gap-2">
               <img src="/LogoChoucair.png" alt="Choucair" className="h-14 w-auto" />
-              <span className="text-[10px] tracking-[0.25em] text-gray-300 font-medium">BUSINESS CENTRIC TESTING</span>
+              <span className="text-[10px] tracking-[0.25em] text-gray-300 font-medium">Digital Assets Reliability</span>
             </div>
             <CardTitle className="text-3xl font-bold mb-3">Crear nueva cuenta</CardTitle>
             <p className="text-gray-200 text-base">Únete a nuestra plataforma</p>

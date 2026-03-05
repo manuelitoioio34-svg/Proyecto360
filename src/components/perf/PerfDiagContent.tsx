@@ -118,6 +118,7 @@ export function PerfDiagContent({
 
                 <SectionDivider label="Resumen" info="Vista general del estado de rendimiento (0-100)." />
 
+                <div className="diag-section-box">
                 <div className="diagnostico-grid w-full">
                     {[perfCard, ...categoryCards].map((item) => (
                         <MetricCard
@@ -146,6 +147,7 @@ export function PerfDiagContent({
                         />
                     ))}
                 </div>
+                </div>
 
                 {(showPerfDetails || showBPDetails || showSeoDetails) && canPerfBreakdowns && (
                     <SectionDivider
@@ -155,24 +157,28 @@ export function PerfDiagContent({
                 )}
 
                 {showPerfDetails && canPerfBreakdowns && (
-                    <>
+                    <div className="diag-section-box">
                         <PerfBreakdownGrid items={perfBreakItems} />
                         <ScreenshotPreview src={getFinalScreenshot(apiData)} />
-                    </>
+                    </div>
                 )}
 
                 {showBPDetails && canPerfBreakdowns && (
-                    <CategoryBreakdown
-                        label="Practicas recomendadas"
-                        items={bpBreak.length ? bpBreak : translateList((apiData as Record<string, unknown>)?.['best-practices'] as unknown[])}
-                    />
+                    <div className="diag-section-box">
+                        <CategoryBreakdown
+                            label="Practicas recomendadas"
+                            items={bpBreak.length ? bpBreak : translateList((apiData as Record<string, unknown>)?.['best-practices'] as unknown[])}
+                        />
+                    </div>
                 )}
 
                 {showSeoDetails && canPerfBreakdowns && (
-                    <CategoryBreakdown
-                        label="SEO"
-                        items={seoBreak.length ? seoBreak : translateList((apiData as Record<string, unknown>)?.['seo'] as unknown[])}
-                    />
+                    <div className="diag-section-box">
+                        <CategoryBreakdown
+                            label="SEO"
+                            items={seoBreak.length ? seoBreak : translateList((apiData as Record<string, unknown>)?.['seo'] as unknown[])}
+                        />
+                    </div>
                 )}
 
                 {!canPerfBreakdowns && (
@@ -201,7 +207,9 @@ export function PerfDiagContent({
                 )}
 
                 {canPerfActionPlan && (
-                    <ActionPlanPanel opportunities={planItems} performance={performance} />
+                    <div className="diag-section-box">
+                        <ActionPlanPanel opportunities={planItems} performance={performance} />
+                    </div>
                 )}
 
                 <SectionDivider

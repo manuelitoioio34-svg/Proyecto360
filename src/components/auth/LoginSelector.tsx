@@ -350,7 +350,7 @@ export default function LoginSelector() {
 
         {/* ── Footer ─────────────────────────────────────────────────────── */}
         <p className="text-center text-xs text-[#aaa] mt-6 tracking-widest uppercase">
-          Business Centric Testing
+          Digital Assets Reliability
         </p>
       </motion.div>
     </div>

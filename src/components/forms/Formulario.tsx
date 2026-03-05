@@ -47,7 +47,7 @@ export default function Formulario() {
                         <div className="mx-auto mb-4 flex flex-col items-center gap-2">
                             <img src="/LogoChoucair.png" alt="Choucair" className="h-14 w-auto" />
                             <span className="text-[9px] tracking-[0.25em] text-gray-200 font-medium">
-                                BUSINESS CENTRIC TESTING
+                                Digital Assets Reliability
                             </span>
                         </div>
                         <CardTitle className="text-2xl font-bold mb-2">

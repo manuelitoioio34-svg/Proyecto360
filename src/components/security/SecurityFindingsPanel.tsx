@@ -47,9 +47,9 @@ export function SecurityFindingsPanel({
                       : '#2563eb';
                     const passed = f?.passed === true;
                     return (
-                      <div key={idx} className="rounded-lg border border-slate-200 dark:border-[#1e2d45] p-3 bg-white dark:bg-[#13203a]">
+                      <div key={idx} className="rounded-lg border p-3">
                         <div className="flex items-start justify-between gap-3">
-                          <div className="font-medium break-words text-slate-900 dark:text-slate-100">
+                          <div className="font-medium break-words">
                             {String(f?.title || f?.id || f?.rule || 'Hallazgo')}
                           </div>
                           <span
@@ -65,7 +65,7 @@ export function SecurityFindingsPanel({
                           </span>
                         </div>
                         {!!(f?.message || f?.description) && (
-                          <div className="text-xs text-slate-600 dark:text-slate-400 mt-1 break-words">
+                          <div className="text-xs text-slate-600 mt-1 break-words">
                             {String(f.message || f.description)}
                           </div>
                         )}

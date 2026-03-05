@@ -173,11 +173,11 @@ export default function Dashboard() {
           <div className="flex items-center gap-4 mb-4">
             <img
               src="/LogoChoucair.png"
-              alt="Choucair Business Centric Testing"
+              alt="Choucair Digital Assets Reliability"
               className="h-12 w-auto"
             />
             <div className={`text-[10px] tracking-[0.25em] font-medium ${dark ? 'text-gray-300' : 'text-gray-500'}`}>
-              BUSINESS CENTRIC TESTING
+              Digital Assets Reliability
             </div>
           </div>
           <h1 className={`text-4xl font-bold mb-4 ${dark ? 'text-white' : 'text-[#222222]'}`}>

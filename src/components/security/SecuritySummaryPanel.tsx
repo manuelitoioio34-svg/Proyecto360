@@ -46,19 +46,19 @@ export function SecuritySummaryPanel({ securityResult, userRole }: Props) {
   return (
     <div className="flex flex-col gap-4">
       <div className="text-center">
-        <h3 className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-4 flex items-center justify-center gap-2">
+        <h3 className="text-sm font-medium text-slate-600 mb-4 flex items-center justify-center gap-2">
           Datos del Histórico de Seguridad
         </h3>
       </div>
 
       {/* Estado de pruebas */}
-      <div className="rounded-lg border border-slate-200 dark:border-[#1e2d45] p-4 bg-white dark:bg-[#13203a]">
+      <div className="rounded-lg border p-4 bg-white">
         <div className="flex items-center justify-between mb-3">
-          <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+          <h4 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
             📊 Estado de Pruebas
           </h4>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-[#162440] px-2 py-1 rounded-full">
+            <span className="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded-full">
               Histórico
             </span>
             <div className="relative tooltip-container">
@@ -95,30 +95,30 @@ export function SecuritySummaryPanel({ securityResult, userRole }: Props) {
         </div>
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-slate-600 dark:text-slate-400">Revisadas</span>
+            <span className="text-sm text-slate-600">Revisadas</span>
             <span className="font-bold text-green-600 text-lg">{String(passedCount)}</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-slate-600 dark:text-slate-400">Avisos</span>
+            <span className="text-sm text-slate-600">Avisos</span>
             <span className="font-bold text-amber-600 text-lg">{String(warningCount)}</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-slate-600 dark:text-slate-400">Mejoras por revisar</span>
+            <span className="text-sm text-slate-600">Mejoras por revisar</span>
             <span className="font-bold text-red-600 text-lg">{String(failedCount)}</span>
           </div>
         </div>
       </div>
 
-      <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-2">📊 Datos del histórico</h3>
+      <h3 className="text-lg font-semibold text-slate-700 mb-2">📊 Datos del histórico</h3>
 
       {/* Estado de encabezados */}
-      <div className="rounded-lg border border-slate-200 dark:border-[#1e2d45] p-4 bg-white dark:bg-[#13203a]">
+      <div className="rounded-lg border p-4 bg-white">
         <div className="flex items-center justify-between mb-3">
-          <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+          <h4 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
             🔒 Estado de Encabezados
           </h4>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-[#162440] px-2 py-1 rounded-full">
+            <span className="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded-full">
               Histórico
             </span>
             <div className="relative tooltip-container">

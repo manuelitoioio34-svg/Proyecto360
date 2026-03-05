@@ -50,11 +50,11 @@ export function SecurityHeadersGrid({
         const isExpanded = !!expandedHeaders[normKey];
 
         return (
-          <div key={normKey} className="rounded-lg border border-slate-200 dark:border-[#1e2d45] p-3 transition-colors hover:bg-slate-50 dark:hover:bg-[#162440] bg-white dark:bg-[#13203a]">
+          <div key={normKey} className="rounded-lg border p-3 transition-colors hover:bg-slate-50">
             <div className="flex items-start justify-between gap-3">
-              <div className="font-medium break-words text-slate-900 dark:text-slate-100">
+              <div className="font-medium break-words">
                 {meta?.title || normKey}
-                <div className="text-xs text-slate-500 dark:text-slate-400">{normKey}</div>
+                <div className="text-xs text-slate-500">{normKey}</div>
               </div>
               <div className="flex items-center gap-2">
                 {CRITICAL_HEADERS.includes(normKey) && (
@@ -73,7 +73,7 @@ export function SecurityHeadersGrid({
                   {statusText}
                 </span>
                 <button
-                  className="text-xs text-slate-600 dark:text-slate-400 underline cursor-pointer hover:text-slate-900 dark:hover:text-slate-100"
+                  className="text-xs text-slate-600 underline cursor-pointer hover:text-slate-900"
                   onClick={() => onToggleHeader(normKey)}
                   aria-expanded={isExpanded}
                 >
@@ -84,11 +84,11 @@ export function SecurityHeadersGrid({
 
             {value && (
               <div className="mt-2 flex items-center gap-2">
-                <code className="text-xs bg-slate-100 dark:bg-[#162440] dark:text-slate-300 px-2 py-1 rounded whitespace-pre-wrap break-all">
+                <code className="text-xs bg-slate-100 px-2 py-1 rounded whitespace-pre-wrap break-all">
                   {value}
                 </code>
                 <button
-                  className="p-1 rounded hover:bg-slate-200 dark:hover:bg-[#1e2d45] transition-colors cursor-pointer"
+                  className="p-1 rounded hover:bg-slate-200 transition-colors cursor-pointer"
                   onClick={() => copyText(value)}
                   title="Copiar valor"
                   aria-label="Copiar valor"
@@ -99,11 +99,11 @@ export function SecurityHeadersGrid({
             )}
 
             {detail && (
-              <div className="text-xs text-slate-600 dark:text-slate-400 mt-1 break-words">{detail}</div>
+              <div className="text-xs text-slate-600 mt-1 break-words">{detail}</div>
             )}
 
             <div
-              className={`mt-2 text-xs bg-slate-50 dark:bg-[#162440] border border-slate-200 dark:border-[#1e2d45] text-slate-700 dark:text-slate-300 rounded p-2 transition-all ${
+              className={`mt-2 text-xs bg-slate-50 border rounded p-2 transition-all ${
                 isExpanded ? 'opacity-100' : 'opacity-0 hidden'
               }`}
             >
@@ -122,7 +122,7 @@ export function SecurityHeadersGrid({
                 <div className="mt-1">
                   <strong>Valor recomendado:</strong>
                   <div>
-                    <code className="text-[11px] bg-white dark:bg-[#0d1626] dark:text-slate-300 border border-slate-200 dark:border-[#1e2d45] rounded px-2 py-1 inline-block mt-1">
+                    <code className="text-[11px] bg-white border rounded px-2 py-1 inline-block mt-1">
                       {meta.expected}
                     </code>
                   </div>

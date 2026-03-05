@@ -1,7 +1,7 @@
 ﻿// src/components/dashboard/SecurityDiagnosticoPanel.tsx
 // Panel principal de diagnóstico de seguridad — orquestador limpio
 import React, { useEffect, useRef, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../../shared/ui/card";
+
 import { Button } from "../../shared/ui/button";
 import SecurityScoreWidget from "../SecurityScoreWidget";
 import EmailPdfBar from "../common/EmailPdfBar";
@@ -144,38 +144,21 @@ export default function SecurityDiagnosticoPanel({
   }, [autoRunOnMount, url]);
 
   return (
-    <Card className="mt-4 bg-gradient-to-br from-white to-slate-50 dark:bg-none dark:from-[#13203a] dark:to-[#0d1626] border-slate-200 dark:border-[#1e2d45] shadow-lg">
-      <CardHeader className="bg-gradient-to-r from-slate-50 to-white dark:bg-none dark:from-[#162238] dark:to-[#162238] border-b border-slate-200 dark:border-[#1e2d45]">
-        <CardTitle className="flex items-center gap-3 text-slate-800 dark:text-slate-100">
+    <div data-security-panel className="mt-4">
+      <div className="mb-6">
+        <h3 className="flex items-center gap-3 text-slate-700 dark:text-slate-200 text-lg font-semibold">
           🛡️ Diagnóstico de Seguridad
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="p-6 dark:bg-[#13203a]">
+        </h3>
+      </div>
+      <div>
         {/* Estado de carga */}
         {securityLoading && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {[1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className="relative h-32 rounded-xl bg-gradient-to-r from-slate-100 via-slate-50 to-slate-100 dark:from-[#13203a] dark:via-[#1a2540] dark:to-[#13203a] overflow-hidden"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 dark:via-white/8 to-transparent animate-pulse transform -skew-x-12" />
-                </div>
-              ))}
-            </div>
-            <div className="relative h-48 rounded-xl bg-gradient-to-r from-slate-100 via-slate-50 to-slate-100 dark:from-[#13203a] dark:via-[#1a2540] dark:to-[#13203a] overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 dark:via-white/8 to-transparent animate-pulse transform -skew-x-12" />
-            </div>
-            <div className="text-center py-4">
-              <div className="flex items-center justify-center gap-3 text-slate-600 dark:text-slate-300">
-                <div className="animate-spin rounded-full h-6 w-6 border-3 border-blue-500 border-t-transparent" />
-                <span className="font-medium">Ejecutando análisis de seguridad...</span>
-              </div>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
-                Revisando encabezados HTTP, cookies y configuraciones de seguridad
-              </p>
-            </div>
+          <div className="flex flex-col items-center justify-center py-16 gap-3">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-slate-200 border-t-blue-500" />
+            <p className="font-medium text-slate-700 dark:text-slate-200">Ejecutando análisis de seguridad...</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              Revisando encabezados HTTP, cookies y configuraciones de seguridad
+            </p>
           </div>
         )}
 
@@ -231,9 +214,9 @@ export default function SecurityDiagnosticoPanel({
         {securityResult && (
           <div ref={captureRef} className="flex flex-col gap-6">
             {/* Acerca del análisis */}
-            <div className="rounded-lg border border-slate-200 dark:border-[#1e2d45] p-4 bg-slate-50 dark:bg-[#162238]">
+            <div className="diag-section-box">
               <button
-                className="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer select-none inline-flex items-center gap-2 hover:text-slate-900 dark:hover:text-slate-100"
+                className="text-sm font-medium text-slate-700 cursor-pointer select-none inline-flex items-center gap-2 hover:text-slate-900"
                 onClick={() => setShowSecurityAbout((v) => !v)}
                 aria-expanded={showSecurityAbout}
                 aria-controls="about-panel"
@@ -243,7 +226,7 @@ export default function SecurityDiagnosticoPanel({
               </button>
               <div
                 id="about-panel"
-                className={`text-sm text-slate-600 dark:text-slate-400 mt-2 transition-all ${
+                className={`text-sm text-slate-600 mt-2 transition-all ${
                   showSecurityAbout ? "opacity-100" : "opacity-0 hidden"
                 }`}
               >
@@ -285,7 +268,7 @@ export default function SecurityDiagnosticoPanel({
             />
             <div className="flex flex-col lg:flex-row gap-6">
               <div className="flex-1">
-                <div className="rounded-lg border border-slate-200 dark:border-[#1e2d45] p-6 bg-gradient-to-br from-white to-slate-50 dark:from-[#13203a] dark:to-[#0d1626]">
+                <div className="diag-section-box">
                   <SecurityScoreWidget
                     score={
                       securityResult?.score ?? securityResult?.securityScore ?? null
@@ -353,7 +336,7 @@ export default function SecurityDiagnosticoPanel({
                     }
                   />
                   <div className="flex justify-end mb-2">
-                    <label className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 cursor-pointer select-none">
+                    <label className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer select-none">
                       <input
                         type="checkbox"
                         checked={showOnlyMissing}
@@ -363,20 +346,24 @@ export default function SecurityDiagnosticoPanel({
                       Solo mostrar faltantes
                     </label>
                   </div>
-                  <SecurityHeadersGrid
-                    headers={securityResult.headers as Record<string, unknown>}
-                    expandedHeaders={expandedHeaders}
-                    onToggleHeader={toggleHeaderDetail}
-                    showOnlyMissing={showOnlyMissing}
-                  />
+                  <div className="diag-section-box">
+                    <SecurityHeadersGrid
+                      headers={securityResult.headers as Record<string, unknown>}
+                      expandedHeaders={expandedHeaders}
+                      onToggleHeader={toggleHeaderDetail}
+                      showOnlyMissing={showOnlyMissing}
+                    />
+                  </div>
                 </>
               )}
 
             {/* Cookies */}
             {Array.isArray(securityResult?.cookies) && canSecurityCookies && (
-              <SecurityCookiesGrid
-                cookies={securityResult.cookies as Record<string, unknown>[]}
-              />
+              <div className="diag-section-box">
+                <SecurityCookiesGrid
+                  cookies={securityResult.cookies as Record<string, unknown>[]}
+                />
+              </div>
             )}
 
             {/* Aviso encabezados para cliente */}
@@ -388,11 +375,13 @@ export default function SecurityDiagnosticoPanel({
             )}
 
             {/* Hallazgos y plan */}
-            <SecurityFindingsPanel
-              securityResult={securityResult as unknown as Record<string, unknown>}
-              canSecurityFindings={canSecurityFindings}
-              canSecurityActionPlan={canSecurityActionPlan}
-            />
+            <div className="diag-section-box">
+              <SecurityFindingsPanel
+                securityResult={securityResult as unknown as Record<string, unknown>}
+                canSecurityFindings={canSecurityFindings}
+                canSecurityActionPlan={canSecurityActionPlan}
+              />
+            </div>
 
             {/* Banners de acceso */}
             {!anySecurityBreakdowns && (
@@ -429,7 +418,7 @@ export default function SecurityDiagnosticoPanel({
             </div>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

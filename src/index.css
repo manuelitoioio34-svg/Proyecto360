@@ -1,11 +1,6 @@
 /* Tailwind v4 runtime (global, NO modules) */
 @import "tailwindcss";
 
-/* Force class-based dark mode (Tailwind v4 default is media-query based).
-   This makes dark: variants respond to the .dark class on <html>,
-   which useDarkMode.ts toggles via localStorage. */
-@variant dark (&:where(.dark, .dark *));
-
 /* Design tokens — fuente de verdad de variables CSS Choucair */
 @import "./styles/design-tokens.css";
 
@@ -59,10 +54,23 @@ html.dark {
   --gauge-track: #444444;
 }
 
-/* ── Fondo del body en light mode: gris suave (match del wrapper) ──
-   Evita el flash blanco antes de que React monte */
+/* ── Fondo del body en light mode: blanco ──
+   Evita el flash antes de que React monte */
 body {
-  background-color: #f0f0f0 !important;
+  background-color: #ffffff !important;
+}
+
+/* ── Light mode: forzar fondo blanco aunque el SO esté en dark ──
+   Tailwind v4 activa dark: según prefers-color-scheme del SO.
+   Estas reglas anulan ese comportamiento: si html NO tiene .dark,
+   los wrappers de página van en blanco sin importar el SO. */
+html:not(.dark) body,
+html:not(.dark) #root,
+html:not(.dark) .min-h-screen,
+html:not(.dark) [data-page="diagnostico-view"],
+html:not(.dark) [data-slot="card"][data-page="diagnostico-view"] {
+  background-color: #ffffff !important;
+  background-image: none !important;
 }
 
 /* Interactivos: transición y cursor, sin imponer estilos visuales agresivos */
@@ -321,6 +329,35 @@ html.dark [data-page="dashboard-general"] [data-slot="card"][class*="border-blue
 /* ── Border radius: tarjetas más redondeadas (20 px) ── */
 [data-slot="card"] {
   border-radius: 1.25rem !important;
+}
+
+/* ── Card raíz de la vista diagnóstico: sin radius, sin borde, sin sombra ── */
+[data-slot="card"][data-page="diagnostico-view"] {
+  border-radius: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* ── Panel de seguridad en light mode: fondo blanco plano ── */
+html:not(.dark) [data-security-panel] {
+  background-color: #ffffff !important;
+  background-image: none !important;
+}
+html:not(.dark) [data-security-panel] h3 {
+  color: #1e293b !important;
+}
+
+/* ── Section boxes: contenedores sutiles para secciones de diagnóstico ── */
+.diag-section-box {
+  border-radius: 0.75rem;
+  border: 1px solid #e8edf2;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  background: #ffffff;
+}
+html.dark .diag-section-box {
+  border-color: #1e2d45;
+  background: #162238;
 }
 
 /* ── Botones de navegación "Nuevo análisis" / "Volver a vista general" ──

@@ -35,9 +35,9 @@ export function SectionDivider({
   return (
     <div className="w-full my-8" role="region" aria-label={label}>
       <div className="flex items-center gap-4">
-        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-300 dark:via-slate-600 to-transparent" />
-        <div className="flex items-center gap-3 px-4 py-2 rounded-lg bg-gradient-to-r from-slate-50 to-white dark:from-[#162238] dark:to-[#162440] border border-slate-200 dark:border-[#1e2d45] shadow-sm">
-          <div className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 select-none">
+        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent" />
+        <div className="flex items-center gap-3 px-4 py-2 rounded-lg bg-gradient-to-r from-slate-50 to-white border border-slate-200 shadow-sm">
+          <div className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-slate-700 select-none">
             {label}
           </div>
           {info && (
@@ -53,12 +53,12 @@ export function SectionDivider({
             </button>
           )}
         </div>
-        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-300 dark:via-slate-600 to-transparent" />
+        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent" />
       </div>
       {info && open && (
         <div
           id={id}
-          className="mt-4 text-sm text-slate-700 dark:text-slate-300 bg-gradient-to-r from-blue-50 to-slate-50 dark:from-[#162238] dark:to-[#162440] border border-blue-200 dark:border-[#1e2d45] rounded-lg p-4 shadow-sm animate-in slide-in-from-top-2 duration-300"
+          className="mt-4 text-sm text-slate-700 bg-gradient-to-r from-blue-50 to-slate-50 border border-blue-200 rounded-lg p-4 shadow-sm animate-in slide-in-from-top-2 duration-300"
         >
           {info}
         </div>

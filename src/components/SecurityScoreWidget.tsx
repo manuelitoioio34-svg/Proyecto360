@@ -8,9 +8,9 @@ function MiniDivider({ label }: { label: string }) {
   return (
     <div className="w-full my-2.5" role="separator" aria-label={label}>
       <div className="flex items-center gap-2">
-        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-300 dark:via-slate-600 to-transparent" />
-        <div className="text-[11px] uppercase text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded-md bg-slate-50 dark:bg-[#162440] border border-slate-200 dark:border-[#1e2d45]">{label}</div>
-        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-300 dark:via-slate-600 to-transparent" />
+        <div className="flex-1 h-px" style={{ background: 'linear-gradient(90deg, rgba(0,0,0,0) 0%, #cbd5e1 50%, rgba(0,0,0,0) 100%)' }} />
+        <div className="text-[11px] uppercase text-[#64748b] px-2 py-0.5 rounded-md bg-[#f8fafc] border border-[#e2e8f0]">{label}</div>
+        <div className="flex-1 h-px" style={{ background: 'linear-gradient(90deg, rgba(0,0,0,0) 0%, #cbd5e1 50%, rgba(0,0,0,0) 100%)' }} />
       </div>
     </div>
   );
@@ -102,7 +102,7 @@ export default function SecurityScoreWidget({
   }, [topFindings]);
 
   return (
-    <div className="bg-gradient-to-br from-white to-slate-50 dark:from-[#13203a] dark:to-[#0d1626] rounded-xl border border-slate-200 dark:border-[#1e2d45] p-6 shadow-sm">
+    <div className="bg-gradient-to-br from-white to-slate-50 rounded-xl border border-slate-200 p-6 shadow-sm">
       <div className="flex flex-col lg:flex-row gap-6 items-start">
         {/* Gauge principal con diseño mejorado */}
         <div className="relative flex-shrink-0">
@@ -111,7 +111,7 @@ export default function SecurityScoreWidget({
             onMouseLeave={() => setShowTip(false)}
             role="img"
             aria-label={`Calificación de seguridad ${s ?? "sin datos"}`}
-            className="relative w-32 h-32 rounded-2xl bg-white dark:bg-[#162238] shadow-lg border border-slate-200 dark:border-[#1e2d45] flex items-center justify-center cursor-default group hover:shadow-xl transition-all duration-300"
+            className="relative w-32 h-32 rounded-2xl bg-white shadow-lg border border-slate-200 flex items-center justify-center cursor-default group hover:shadow-xl transition-all duration-300"
           >
             {/* Efecto de resplandor basado en la puntuación */}
             <div 
@@ -169,7 +169,7 @@ export default function SecurityScoreWidget({
 
             {/* Valor central con animación mejorada */}
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-              <div className="text-3xl font-black text-slate-900 dark:text-slate-100 mb-1 transition-all duration-300">
+              <div className="text-3xl font-black text-slate-900 mb-1 transition-all duration-300">
                 {s == null ? "—" : animated}
               </div>
               <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: gaugeColor }}>
@@ -192,7 +192,7 @@ export default function SecurityScoreWidget({
         {/* Contenido principal */}
         <div className="flex-1 min-w-0 space-y-4">
           <div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-2">
+            <h3 className="text-lg font-bold text-slate-900 mb-2">
               Calificación de Seguridad {s != null && `— Grado ${info.g}`}
             </h3>
             
@@ -210,13 +210,13 @@ export default function SecurityScoreWidget({
               </div>
             </div>
             
-            <p className="text-sm text-slate-600 dark:text-slate-400 mt-2 leading-relaxed">{info.text}</p>
+            <p className="text-sm text-slate-600 mt-2 leading-relaxed">{info.text}</p>
           </div>
 
           {/* Sparkline history mejorado */}
           {sparkPoints && (
-            <div className="bg-slate-50 dark:bg-[#162440] rounded-lg p-4 border border-slate-200 dark:border-[#1e2d45]">
-              <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
+            <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
+              <h4 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
                 📊 Evolución Histórica
               </h4>
               <div className="relative">
@@ -243,8 +243,8 @@ export default function SecurityScoreWidget({
         {/* Panel lateral con información adicional */}
         <div className="w-full lg:w-64 space-y-4">
           {/* Leyenda mejorada */}
-          <div className="bg-white dark:bg-[#13203a] rounded-lg p-4 border border-slate-200 dark:border-[#1e2d45] shadow-sm">
-            <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
+          <div className="bg-white rounded-lg p-4 border border-slate-200 shadow-sm">
+            <h4 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
               🎯 Escala de Calificación
             </h4>
             <div className="space-y-2">
@@ -260,9 +260,9 @@ export default function SecurityScoreWidget({
                     className="w-3 h-3 rounded-sm shadow-sm" 
                     style={{ backgroundColor: item.color }}
                   />
-                  <span className="font-mono text-slate-600 dark:text-slate-400 min-w-0">{item.range}</span>
+                  <span className="font-mono text-slate-600 min-w-0">{item.range}</span>
                   <span className="font-bold" style={{ color: item.color }}>{item.grade}</span>
-                  <span className="text-slate-500 dark:text-slate-400 truncate">{item.label}</span>
+                  <span className="text-slate-500 truncate">{item.label}</span>
                 </div>
               ))}
             </div>
@@ -270,18 +270,18 @@ export default function SecurityScoreWidget({
 
           {/* Principales hallazgos mejorados */}
           {topItems.length > 0 && (
-            <div className="bg-white dark:bg-[#13203a] rounded-lg p-4 border border-slate-200 dark:border-[#1e2d45] shadow-sm">
-              <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
+            <div className="bg-white rounded-lg p-4 border border-slate-200 shadow-sm">
+              <h4 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
                 ⚠️ Principales Hallazgos
               </h4>
               <ul className="space-y-2">
                 {topItems.map((item) => (
-                  <li key={item.id} className="flex items-start gap-3 p-2 rounded-lg bg-slate-50 dark:bg-[#162440] border border-slate-100 dark:border-[#1e2d45]">
+                  <li key={item.id} className="flex items-start gap-3 p-2 rounded-lg bg-slate-50 border border-slate-100">
                     <div 
                       className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" 
                       style={{ backgroundColor: item.color }}
                     />
-                    <span className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">{item.title}</span>
+                    <span className="text-xs text-slate-700 leading-relaxed">{item.title}</span>
                   </li>
                 ))}
               </ul>

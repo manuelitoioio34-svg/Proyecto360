@@ -32,21 +32,21 @@ export const SeverityChart = ({ findings }: { findings: unknown[] }) => {
   ];
 
   return (
-    <div className="bg-white dark:bg-[#13203a] rounded-xl border border-slate-200 dark:border-[#1e2d45] p-4 shadow-sm">
-      <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4 flex items-center gap-2">
+    <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+      <h4 className="text-sm font-semibold text-slate-700 mb-4 flex items-center gap-2">
         📊 Distribución por Severidad
       </h4>
       <div className="flex flex-wrap gap-4 mb-4">
         {items.map((item) => (
           <div key={item.label} className="flex items-center gap-2">
             <span className="text-sm">{item.icon}</span>
-            <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
+            <span className="text-xs font-medium text-slate-600">
               {item.label}: {item.value}%
             </span>
           </div>
         ))}
       </div>
-      <div className="relative h-4 bg-slate-100 dark:bg-[#162440] rounded-full overflow-hidden shadow-inner">
+      <div className="relative h-4 bg-slate-100 rounded-full overflow-hidden shadow-inner">
         <div className="flex h-full">
           {items.map((item, index) => (
             <div
@@ -89,20 +89,20 @@ export const HeaderStatusBars = ({
     <div className="space-y-3">
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-sm text-slate-600 dark:text-slate-400">Presentes</span>
+          <span className="text-sm text-slate-600">Presentes</span>
           <span className="font-bold text-green-600 text-lg">{present}</span>
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-sm text-slate-600 dark:text-slate-400">Faltantes</span>
+          <span className="text-sm text-slate-600">Faltantes</span>
           <span className="font-bold text-red-600 text-lg">{missing}</span>
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-sm text-slate-600 dark:text-slate-400">Cobertura</span>
+          <span className="text-sm text-slate-600">Cobertura</span>
           <span className="font-bold text-blue-600 text-lg">{pct}%</span>
         </div>
       </div>
       <div className="relative">
-        <div className="h-3 bg-gradient-to-r from-red-100 dark:from-red-900/30 to-green-100 dark:to-green-900/30 rounded-full overflow-hidden shadow-inner">
+        <div className="h-3 bg-gradient-to-r from-red-100 to-green-100 rounded-full overflow-hidden shadow-inner">
           <div
             className="h-full bg-gradient-to-r from-green-500 to-green-600 rounded-full transition-all duration-1000 ease-out relative"
             style={{ width: `${pct}%` }}
@@ -110,7 +110,7 @@ export const HeaderStatusBars = ({
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-pulse" />
           </div>
         </div>
-        <div className="text-xs text-slate-600 dark:text-slate-400 mt-2 text-center">
+        <div className="text-xs text-slate-600 mt-2 text-center">
           {present} de {total} encabezados
         </div>
       </div>

@@ -21,7 +21,7 @@ export function useDarkMode() {
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
     // Fix body/html background immediately (before CSS kicks in)
-    document.documentElement.style.background = dark ? '#111111' : '#f0f0f0';
+    document.documentElement.style.background = dark ? '#0a1220' : '#ffffff';
     try {
       localStorage.setItem(STORAGE_KEY, String(dark));
     } catch {
